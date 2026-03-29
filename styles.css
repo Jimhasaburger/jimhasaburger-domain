@@ -46,3 +46,23 @@ a:link {
 a:visited {
   color: DeepSkyBlue;
 }
+.container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+}
+
+.name-list p {
+    display: flex;
+    justify-content: space-between;
+    margin: 5px 0;
+}
+
+.name {
+    font-weight: bold;
+}
+
+.handle {
+    font-family: monospace;
+    color: #555;
+}
