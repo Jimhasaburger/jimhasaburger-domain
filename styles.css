@@ -37,3 +37,12 @@ a:hover {
 a:active {
   text-decoration: underline;
 }
+/* unvisited link */
+a:link {
+  color: blue;
+}
+
+/* visited link */
+a:visited {
+  color: green;
+}
