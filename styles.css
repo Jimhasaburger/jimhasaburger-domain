@@ -39,10 +39,10 @@ a:active {
 }
 /* unvisited link */
 a:link {
-  color: blue;
+  color: DeepSkyBlue;
 }
 
 /* visited link */
 a:visited {
-  color: green;
+  color: DeepSkyBlue;
 }
