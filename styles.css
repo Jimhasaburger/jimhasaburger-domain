@@ -68,3 +68,16 @@ a:visited {
     border-radius: 0;          /* makes them square */
     cursor: pointer;
 }
+.avatar {
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+    border-radius: 50%;   /* makes it circular */
+}
+
+.name-list p {
+    display: flex;
+    align-items: center;  /* vertically align image + text */
+    gap: 10px;
+    margin: 8px 0;
+}
