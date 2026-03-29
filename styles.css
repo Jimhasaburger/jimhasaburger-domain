@@ -52,11 +52,3 @@ a:visited {
     justify-content: space-between;
     margin: 5px 0;
 }
-
-.name {
-    font-weight: bold;
-}
-
-.handle {
-    font-family: monospace;
-}
