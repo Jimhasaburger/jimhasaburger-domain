@@ -61,10 +61,10 @@ a:visited {
 .btn {
     background: DeepSkyBlue;
     color: white;
-    border: 1px solid;
-    padding: 15px 20px;
+    border: none;              /* removes outline */
+    padding: 8px 10px;         /* smaller size */
     margin: 5px 0;
-    font-size: 16px;
-    border-radius: 8px;
+    font-size: 14px;           /* slightly smaller text */
+    border-radius: 0;          /* makes them square */
     cursor: pointer;
 }
