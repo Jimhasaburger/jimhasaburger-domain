@@ -1,20 +1,17 @@
-/* Dark mode page */
-
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background-color: #121212; /* dark background */
-    color: #e0e0e0; /* light text */
-    padding: 20px; /* some padding around the edges */
+    background-color: #121212;
+    color: #e0e0e0;
+    padding: 20px;
 }
 
 .container {
-    /* No centering; will flow naturally at top-left */
     padding: 20px;
 }
 
 h1 {
-    color: #ffffff; /* brighter heading */
+    color: #ffffff;
     margin-bottom: 10px;
 }
 
