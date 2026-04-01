@@ -95,12 +95,18 @@ header h1 {
     margin: 0;
     font-size: 28px;
     color: #ffffff;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 header nav a {
+    white-space: nowrap;
     color: DeepSkyBlue;
     margin-left: 15px;
     font-weight: bold;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
 }
 
 header nav a:hover {
