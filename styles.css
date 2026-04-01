@@ -101,7 +101,7 @@ header h1 {
 header nav a {
     white-space: nowrap;
     color: DeepSkyBlue;
-    margin-left: 15px;
+    margin-left: 10px;
     font-weight: bold;
     display: flex;
     flex-direction: row;
