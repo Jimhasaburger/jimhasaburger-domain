@@ -95,7 +95,6 @@ header h1 {
     margin: 0;
     font-size: 28px;
     color: #ffffff;
-    white-space: nowrap;
 }
 
 header nav a {
@@ -104,8 +103,6 @@ header nav a {
     margin-left: 10px;
     font-weight: bold;
     display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
 }
 
 header nav a:hover {
