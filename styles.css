@@ -77,12 +77,12 @@ a:visited {
 
 .name-list p {
     display: flex;
-    align-items: center;  /* vertically align image + text */
+    align-items: center;
     gap: 10px;
     margin: 8px 0;
 }
 
-header {
+ header {
     width: 100%;
     background-color: #1e1e1e;
     padding: 20px;
@@ -90,6 +90,7 @@ header {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    box-sizing: border-box;
 }
 
 header h1 {
