@@ -95,7 +95,6 @@ header h1 {
     margin: 0;
     font-size: 28px;
     color: #ffffff;
-    flex-shrink: 0;
     white-space: nowrap;
 }
 
