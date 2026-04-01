@@ -111,3 +111,24 @@ header nav a {
 header nav a:hover {
     text-decoration: underline;
 }
+/* Mobile Styles */
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px;
+    }
+
+    header nav {
+        margin-top: 15px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    header nav a {
+        margin-left: 0;
+        font-size: 16px;
+    }
+}
