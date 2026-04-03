@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CAM_1</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      overflow: hidden;
+      font-family: monospace;
+      color: #00ff9c;
+    }
+
+    video {
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      filter: grayscale(1) contrast(1.1) brightness(0.9);
+    }
+
+    #time {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 14px;
+    }
+
+    #rec {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      color: red;
+      font-weight: bold;
+    }
+
+    #label {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      font-size: 14px;
+    }
+
+    .noise {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: url('assets/noise.png');
+      opacity: 0.05;
+      pointer-events: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <video id="cam" autoplay muted playsinline></video>
+
+  <div id="time"></div>
+  <div id="rec">● REC</div>
+  <div id="label">CAM_1</div>
+  <div class="noise"></div>
+
+<script>
+const video = document.getElementById("cam");
+
+// ===== VIDEO FILES =====
+const clips = {
+  on: "video/lightson.mp4",
+  off: "video/lightsoff.mp4",
+  toOff: "video/lightsturnoff.mp4",
+  toOn: "video/lightsturnon.mp4",
+  flicker: "video/flicker.mp4"
+};
+
+// ===== CLOCK =====
+function updateTime() {
+  const now = new Date();
+  const pad = n => n.toString().padStart(2, '0');
+
+  document.getElementById("time").textContent =
+    pad(now.getDate()) + "/" +
+    pad(now.getMonth()+1) + "/" +
+    now.getFullYear() + " " +
+    pad(now.getHours()) + ":" +
+    pad(now.getMinutes()) + ":" +
+    pad(now.getSeconds());
+}
+setInterval(updateTime, 1000);
+updateTime();
+
+
+// ===== TIMELINE SYSTEM =====
+const START_TIME = 1710000000000; // fixed seed
+const CYCLE = 60000;
+
+function getState() {
+  const t = Date.now() - START_TIME;
+  const mod = t % CYCLE;
+
+  if (mod < 30000) return "on";
+  if (mod < 32000) return "toOff";
+  if (mod < 45000) return "off";
+  if (mod < 47000) return "toOn";
+  if (mod < 52000) return "flicker";
+
+  return "on";
+}
+
+
+// ===== DETERMINISTIC RANDOM =====
+function pseudoRandom(t) {
+  return Math.abs(Math.sin(t * 0.001));
+}
+
+
+// ===== VIDEO CONTROL =====
+let lastState = "";
+
+function updateVideo() {
+  const state = getState();
+
+  if (state !== lastState) {
+    video.src = clips[state];
+    video.play();
+    lastState = state;
+  }
+}
+
+setInterval(updateVideo, 400);
+updateVideo();
+
+
+// ===== NETWORK LAG (ONLY DURING FLICKER) =====
+function networkLag() {
+  const now = Date.now();
+  const state = getState();
+
+  if (state === "flicker") {
+    const r = pseudoRandom(now);
+
+    if (r > 0.97) {
+      video.pause();
+
+      setTimeout(() => {
+        video.play();
+      }, 800 + (r * 1200));
+    }
+  }
+}
+setInterval(networkLag, 300);
+
+
+// ===== MICRO FREEZE (1 FRAME) =====
+function microFreeze() {
+  const now = Date.now();
+  const r = pseudoRandom(now * 2);
+
+  if (r > 0.995) {
+    video.pause();
+    setTimeout(() => video.play(), 40);
+  }
+}
+setInterval(microFreeze, 200);
+
+</script>
+
+</body>
+</html>
