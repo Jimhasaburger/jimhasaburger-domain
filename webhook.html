@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webhook Browser</title>
+    <title>Webhook tool</title>
     <link rel="stylesheet" href="styles.css">
     <style>
         /* Essential layout overrides to handle the Tab Switching logic */
@@ -40,7 +40,7 @@
 <body>
 
 <header>
-    <h1>WEBHOOK TOOL</h1>
+    <h1>webhook tool</h1>
     <nav>
         <a href="#" onclick="showTab('connection')">url</a>
         <a href="#" onclick="showTab('message')">normal</a>
@@ -54,19 +54,19 @@
 <div class="container">
     <div id="connection" class="tab-content active">
         <h1>Settings</h1>
-        <p>Configure your target destination.</p>
+        <p>input webhook url</p>
         <input type="text" id="webhookUrl" placeholder="https://discord.com/api/webhooks/...">
         <button class="btn" onclick="saveConfig()">Save URL</button>
     </div>
 
     <div id="message" class="tab-content">
         <h1>Send Message</h1>
-        <textarea id="msgContent" rows="6" placeholder="What's on your mind?"></textarea>
-        <button class="btn" onclick="sendMsg()">Fire Webhook</button>
+        <textarea id="msgContent" rows="6" placeholder="SPAM HZASAAHAAAHHAHAHAA!!! @ every one"></textarea>
+        <button class="btn" onclick="sendMsg()">send</button>
     </div>
 
     <div id="embed" class="tab-content">
-        <h1>Embed Builder</h1>
+        <h1>Embed</h1>
         <div class="grid">
             <input type="text" id="embTitle" placeholder="Title">
             <input type="text" id="embColor" placeholder="Hex Color (e.g. ff0000)">
@@ -83,12 +83,12 @@
     </div>
 
     <div id="automation" class="tab-content">
-        <h1>Automation</h1>
+        <h1>spam</h1>
         <p>Loop messaging system.</p>
-        <label>DELAY (SECONDS)</label>
+        <label>delay</label>
         <input type="number" id="autoDelay" value="1.0" step="0.1">
-        <button class="btn" onclick="startAuto()">Start Loop</button>
-        <button class="btn" style="background: #cc3333;" onclick="stopAuto()">Stop Loop</button>
+        <button class="btn" onclick="startAuto()">Start spam</button>
+        <button class="btn" style="background: #cc3333;" onclick="stopAuto()">Stop spam</button>
     </div>
 
     <div id="console" class="tab-content">
