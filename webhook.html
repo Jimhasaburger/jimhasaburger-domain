@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webhook Browser</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Essential layout overrides to handle the Tab Switching logic */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* Functional spacing for inputs not covered by your base CSS */
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: #1e1e1e;
+            border: 1px solid #333;
+            color: white;
+            box-sizing: border-box;
+        }
+        #console-box {
+            background: #000;
+            color: #00ff00;
+            font-family: monospace;
+            height: 250px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #333;
+            margin-top: 10px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>WEBHOOK TOOL</h1>
+    <nav>
+        <a href="#" onclick="showTab('connection')">CONNECTION</a>
+        <a href="#" onclick="showTab('message')">MESSAGE</a>
+        <a href="#" onclick="showTab('embed')">EMBED</a>
+        <a href="#" onclick="showTab('identity')">IDENTITY</a>
+        <a href="#" onclick="showTab('automation')">AUTOMATION</a>
+        <a href="#" onclick="showTab('console')">CONSOLE</a>
+    </nav>
+</header>
+
+<div class="container">
+    <div id="connection" class="tab-content active">
+        <h1>Settings</h1>
+        <p>Configure your target destination.</p>
+        <input type="text" id="webhookUrl" placeholder="https://discord.com/api/webhooks/...">
+        <button class="btn" onclick="saveConfig()">Save URL</button>
+    </div>
+
+    <div id="message" class="tab-content">
+        <h1>Send Message</h1>
+        <textarea id="msgContent" rows="6" placeholder="What's on your mind?"></textarea>
+        <button class="btn" onclick="sendMsg()">Fire Webhook</button>
+    </div>
+
+    <div id="embed" class="tab-content">
+        <h1>Embed Builder</h1>
+        <div class="grid">
+            <input type="text" id="embTitle" placeholder="Title">
+            <input type="text" id="embColor" placeholder="Hex Color (e.g. ff0000)">
+        </div>
+        <textarea id="embDesc" rows="4" placeholder="Description"></textarea>
+        <button class="btn" onclick="sendEmbed()">Dispatch Embed</button>
+    </div>
+
+    <div id="identity" class="tab-content">
+        <h1>Identity Mask</h1>
+        <p class="handle">Spoof the webhook name.</p>
+        <input type="text" id="newName" placeholder="New Display Name">
+        <button class="btn" onclick="patchWebhook()">Update Profile</button>
+    </div>
+
+    <div id="automation" class="tab-content">
+        <h1>Automation</h1>
+        <p>Loop messaging system.</p>
+        <label>DELAY (SECONDS)</label>
+        <input type="number" id="autoDelay" value="1.0" step="0.1">
+        <button class="btn" onclick="startAuto()">Start Loop</button>
+        <button class="btn" style="background: #cc3333;" onclick="stopAuto()">Stop Loop</button>
+    </div>
+
+    <div id="console" class="tab-content">
+        <h1>System Console</h1>
+        <div id="console-box"></div>
+    </div>
+</div>
+
+<script>
+    let loopTask = null;
+
+    // Startup: Load saved data
+    window.onload = () => {
+        const savedUrl = localStorage.getItem('webhook_url');
+        if (savedUrl) document.getElementById('webhookUrl').value = savedUrl;
+        printLog("Local configuration initialized.");
+    };
+
+    function showTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+    }
+
+    function printLog(msg) {
+        const box = document.getElementById('console-box');
+        const now = new Date().toLocaleTimeString();
+        box.innerHTML += `<div>[${now}] ${msg}</div>`;
+        box.scrollTop = box.scrollHeight;
+    }
+
+    function saveConfig() {
+        const url = document.getElementById('webhookUrl').value;
+        localStorage.setItem('webhook_url', url);
+        printLog("URL saved to local storage.");
+    }
+
+    async function apiRequest(data, method = "POST") {
+        const url = document.getElementById('webhookUrl').value;
+        if (!url) return printLog("Error: Missing Webhook URL.");
+
+        try {
+            const res = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            printLog(`${method} Status: ${res.status}`);
+        } catch (e) {
+            printLog(`Request Failed: ${e.message}`);
+        }
+    }
+
+    function sendMsg() {
+        const text = document.getElementById('msgContent').value;
+        apiRequest({ content: text });
+    }
+
+    function sendEmbed() {
+        const title = document.getElementById('embTitle').value;
+        const desc = document.getElementById('embDesc').value;
+        const colorInput = document.getElementById('embColor').value;
+        const color = colorInput ? parseInt(colorInput.replace('#',''), 16) : null;
+
+        const embed = { description: desc };
+        if (title) embed.title = title;
+        if (color) embed.color = color;
+
+        apiRequest({ embeds: [embed] });
+    }
+
+    function patchWebhook() {
+        const name = document.getElementById('newName').value;
+        apiRequest({ name: name }, "PATCH");
+    }
+
+    function startAuto() {
+        if (loopTask) return;
+        const ms = parseFloat(document.getElementById('autoDelay').value) * 1000;
+        printLog(`Loop started every ${ms}ms.`);
+        loopTask = setInterval(sendMsg, ms);
+    }
+
+    function stopAuto() {
+        clearInterval(loopTask);
+        loopTask = null;
+        printLog("Loop terminated.");
+    }
+</script>
+
+</body>
+</html>
