@@ -1,181 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webhook tool</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        /* Essential layout overrides to handle the Tab Switching logic */
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        
-        /* Functional spacing for inputs not covered by your base CSS */
-        input, textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            background: #1e1e1e;
-            border: 1px solid #333;
-            color: white;
-            box-sizing: border-box;
-        }
-        #console-box {
-            background: #000;
-            color: #00ff00;
-            font-family: monospace;
-            height: 250px;
-            overflow-y: auto;
-            padding: 10px;
-            border: 1px solid #333;
-            margin-top: 10px;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Webhook Tool</title>
+<style>
+body { background:#111; color:#fff; font-family:sans-serif; }
+.container { max-width:700px; margin:auto; padding:10px; }
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+input, textarea {
+    width:100%;
+    padding:10px;
+    margin:10px 0;
+    background:#1e1e1e;
+    border:1px solid #333;
+    color:white;
+}
+button {
+    padding:10px;
+    margin:5px 0;
+    background:#444;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+nav button { margin-right:5px; }
+</style>
 </head>
 <body>
 
 <header>
-    <h1>webhook tool</h1>
-    <nav>
-        <a href="#" onclick="showTab('connection')">url</a>
-        <a href="#" onclick="showTab('message')">normal</a>
-        <a href="#" onclick="showTab('embed')">embed</a>
-        <a href="#" onclick="showTab('identity')">edit name and pfp</a>
-        <a href="#" onclick="showTab('automation')"spam</a>
-        <a href="#" onclick="showTab('console')">"output"</a>
-    </nav>
+<h1>Webhook Tool</h1>
+<nav>
+<button onclick="showTab('url')">URL</button>
+<button onclick="showTab('message')">Message</button>
+<button onclick="showTab('embed')">Embed</button>
+<button onclick="showTab('profile')">Name & PFP</button>
+<button onclick="showTab('spam')">Spam</button>
+</nav>
 </header>
 
 <div class="container">
-    <div id="connection" class="tab-content active">
-        <h1>Settings</h1>
-        <p>input webhook url</p>
-        <input type="text" id="webhookUrl" placeholder="https://discord.com/api/webhooks/...">
-        <button class="btn" onclick="saveConfig()">Save URL</button>
-    </div>
 
-    <div id="message" class="tab-content">
-        <h1>Send Message</h1>
-        <textarea id="msgContent" rows="6" placeholder="SPAM HZASAAHAAAHHAHAHAA!!! @ every one"></textarea>
-        <button class="btn" onclick="sendMsg()">send</button>
-    </div>
+<!-- URL -->
+<div id="url" class="tab-content active">
+<input id="webhookUrl" placeholder="Webhook URL">
+<button onclick="saveUrl()">Save</button>
+</div>
 
-    <div id="embed" class="tab-content">
-        <h1>Embed</h1>
-        <div class="grid">
-            <input type="text" id="embTitle" placeholder="Title">
-            <input type="text" id="embColor" placeholder="Hex Color (e.g. ff0000)">
-        </div>
-        <textarea id="embDesc" rows="4" placeholder="Description"></textarea>
-        <button class="btn" onclick="sendEmbed()">Dispatch Embed</button>
-    </div>
+<!-- Message -->
+<div id="message" class="tab-content">
+<textarea id="msgContent" rows="5" placeholder="Message"></textarea>
+<button onclick="sendMsg()">Send</button>
+</div>
 
-    <div id="identity" class="tab-content">
-        <h1>Identity Mask</h1>
-        <p class="handle">Spoof the webhook name.</p>
-        <input type="text" id="newName" placeholder="New Display Name">
-        <button class="btn" onclick="patchWebhook()">Update Profile</button>
-    </div>
+<!-- Embed -->
+<div id="embed" class="tab-content">
+<div class="grid">
+<input id="embTitle" placeholder="Title">
+<input id="embColor" placeholder="Hex Color">
+</div>
+<textarea id="embDesc" rows="4" placeholder="Description"></textarea>
+<button onclick="sendEmbed()">Send Embed</button>
+</div>
 
-    <div id="automation" class="tab-content">
-        <h1>spam</h1>
-        <p>Loop messaging system.</p>
-        <label>delay</label>
-        <input type="number" id="autoDelay" value="1.0" step="0.1">
-        <button class="btn" onclick="startAuto()">Start spam</button>
-        <button class="btn" style="background: #cc3333;" onclick="stopAuto()">Stop spam</button>
-    </div>
+<!-- Name & PFP -->
+<div id="profile" class="tab-content">
+<input id="newName" placeholder="New Display Name">
+<input id="newAvatar" placeholder="Avatar URL (optional)">
+<button onclick="updateProfile()">Update</button>
+</div>
 
-    <div id="console" class="tab-content">
-        <h1>System Console</h1>
-        <div id="console-box"></div>
-    </div>
+<!-- Spam -->
+<div id="spam" class="tab-content">
+<input type="number" id="delay" value="1" step="0.1" placeholder="Delay (seconds)">
+<button onclick="start()">Start</button>
+<button onclick="stop()">Stop</button>
+</div>
+
 </div>
 
 <script>
-    let loopTask = null;
+let loop = null;
 
-    // Startup: Load saved data
-    window.onload = () => {
-        const savedUrl = localStorage.getItem('webhook_url');
-        if (savedUrl) document.getElementById('webhookUrl').value = savedUrl;
-        printLog("Local configuration initialized.");
-    };
+// Load saved URL
+window.onload = () => {
+    const url = localStorage.getItem('webhook');
+    if (url) document.getElementById('webhookUrl').value = url;
+};
 
-    function showTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-    }
+// Tab switching
+function showTab(id) {
+    document.querySelectorAll('.tab-content')
+        .forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
 
-    function printLog(msg) {
-        const box = document.getElementById('console-box');
-        const now = new Date().toLocaleTimeString();
-        box.innerHTML += `<div>[${now}] ${msg}</div>`;
-        box.scrollTop = box.scrollHeight;
-    }
+// Save webhook URL
+function saveUrl() {
+    localStorage.setItem('webhook', document.getElementById('webhookUrl').value);
+}
 
-    function saveConfig() {
-        const url = document.getElementById('webhookUrl').value;
-        localStorage.setItem('webhook_url', url);
-        printLog("URL saved to local storage.");
-    }
+// API request
+async function request(data, method="POST") {
+    const url = document.getElementById('webhookUrl').value;
+    if (!url) return;
+    try {
+        await fetch(url, {
+            method,
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(data)
+        });
+    } catch {}
+}
 
-    async function apiRequest(data, method = "POST") {
-        const url = document.getElementById('webhookUrl').value;
-        if (!url) return printLog("Error: Missing Webhook URL.");
+// Send message
+function sendMsg() {
+    request({ content: msgContent.value });
+}
 
-        try {
-            const res = await fetch(url, {
-                method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            printLog(`${method} Status: ${res.status}`);
-        } catch (e) {
-            printLog(`Request Failed: ${e.message}`);
-        }
-    }
+// Send embed
+function sendEmbed() {
+    const color = embColor.value ? parseInt(embColor.value.replace('#',''),16) : null;
+    const embed = { description: embDesc.value };
+    if (embTitle.value) embed.title = embTitle.value;
+    if (color) embed.color = color;
+    request({ embeds: [embed] });
+}
 
-    function sendMsg() {
-        const text = document.getElementById('msgContent').value;
-        apiRequest({ content: text });
-    }
+// Update name & avatar
+function updateProfile() {
+    const data = { name: newName.value };
+    if (newAvatar.value) data.avatar = newAvatar.value;
+    request(data, "PATCH");
+}
 
-    function sendEmbed() {
-        const title = document.getElementById('embTitle').value;
-        const desc = document.getElementById('embDesc').value;
-        const colorInput = document.getElementById('embColor').value;
-        const color = colorInput ? parseInt(colorInput.replace('#',''), 16) : null;
+// Spam loop
+function start() {
+    if (loop) return;
+    loop = setInterval(sendMsg, delay.value * 1000);
+}
 
-        const embed = { description: desc };
-        if (title) embed.title = title;
-        if (color) embed.color = color;
-
-        apiRequest({ embeds: [embed] });
-    }
-
-    function patchWebhook() {
-        const name = document.getElementById('newName').value;
-        apiRequest({ name: name }, "PATCH");
-    }
-
-    function startAuto() {
-        if (loopTask) return;
-        const ms = parseFloat(document.getElementById('autoDelay').value) * 1000;
-        printLog(`Loop started every ${ms}ms.`);
-        loopTask = setInterval(sendMsg, ms);
-    }
-
-    function stopAuto() {
-        clearInterval(loopTask);
-        loopTask = null;
-        printLog("Loop terminated.");
-    }
+function stop() {
+    clearInterval(loop);
+    loop = null;
+}
 </script>
 
 </body>
