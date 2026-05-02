@@ -1,0 +1,76 @@
+/* Custom Fullscreen logic for the Win7 Window */
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden; /* Prevents double scrollbars */
+}
+
+.win7-background {
+    /* Classic Win7 Blue Background */
+    background: #3a719b url('https://wallpapercave.com/wp/wp2590213.jpg') no-repeat center center fixed;
+    background-size: cover;
+    padding: 10px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.fullscreen-window {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.window-body {
+    flex-grow: 1; /* Makes the body fill the space between title and status bar */
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+}
+
+.content-padding {
+    padding: 20px;
+}
+
+/* Merging your original styles for text colors inside the window */
+h1 {
+    color: #000; /* Overriding your dark mode #fff for the Win7 theme */
+    margin-bottom: 10px;
+}
+
+p {
+    color: #333; /* Darker text for light Win7 backgrounds */
+    font-size: 18px;
+}
+
+/* Avatar list styling from your original CSS */
+.name-list p {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 1px solid #999;
+}
+
+.handle {
+    color: #666;
+}
+
+/* Keeping your link colors but making them look like standard Win7 links */
+a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
