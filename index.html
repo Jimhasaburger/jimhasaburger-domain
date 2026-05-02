@@ -10,27 +10,6 @@
       <meta property="og:type" content="website">
     <!-- Link to external CSS -->
     <link rel="stylesheet" href="styles.css">
-    <script>
-  (function() {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('aero') === 'true') {
-      // Load 7.css
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = 'https://unpkg.com/7.css';
-      document.head.appendChild(link);
-      
-      // Tell the CSS to activate the overrides
-      document.documentElement.classList.add('win7-active');
-      
-      // Optional: Add the "glass" class to your container automatically
-      window.addEventListener('DOMContentLoaded', () => {
-          document.querySelector('.container')?.classList.add('window', 'glass');
-          document.querySelector('header')?.classList.add('window', 'glass');
-      });
-    }
-  })();
-</script>
 </head>
 <body>
     <header>
