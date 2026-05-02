@@ -10,6 +10,23 @@
       <meta property="og:type" content="website">
     <!-- Link to external CSS -->
     <link rel="stylesheet" href="styles.css">
+    <script>
+      (function() {
+        // Check if URL contains ?aero=true
+        const params = new URLSearchParams(window.location.search);
+        
+        if (params.get('aero') === 'true') {
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = 'https://unpkg.com/7.css';
+          document.head.appendChild(link);
+      
+          document.documentElement.classList.add('win7-active');
+      
+          console.log("7.css theme loaded.");
+        }
+  })();
+</script>
 </head>
 <body>
     <header>
