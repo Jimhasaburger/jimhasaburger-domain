@@ -11,20 +11,45 @@
     <!-- Link to external CSS -->
     <link rel="stylesheet" href="styles.css">
     <script>
-      (function() {
-        // Check if URL contains ?aero=true
-        const params = new URLSearchParams(window.location.search);
+  (function() {
+    const params = new URLSearchParams(window.location.search);
+    
+    if (params.get('aero') === 'true') {
+      // 1. Add the CSS
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/7.css';
+      document.head.appendChild(link);
+      document.documentElement.classList.add('win7-active');
+
+      // 2. Wait for DOM to load to restructure the page
+      window.addEventListener('DOMContentLoaded', () => {
+        const body = document.body;
+        const originalContent = body.innerHTML;
         
-        if (params.get('aero') === 'true') {
-          const link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = 'https://unpkg.com/7.css';
-          document.head.appendChild(link);
-      
-          document.documentElement.classList.add('win7-active');
-      
-          console.log("7.css theme loaded.");
-        }
+        // 3. Wrap everything in the Windows 7 frame
+        body.innerHTML = `
+          <div class="window glass" style="width: 800px; max-width: 95%; margin: 50px auto;">
+            <div class="title-bar">
+              <div class="title-bar-text">Mint's Website - Windows Internet Explorer</div>
+              <div class="title-bar-controls">
+                <button aria-label="Minimize"></button>
+                <button aria-label="Maximize"></button>
+                <button aria-label="Close"></button>
+              </div>
+            </div>
+            <div class="window-body">
+              ${originalContent}
+            </div>
+            <div class="status-bar">
+              <p class="status-bar-field">Done</p>
+              <p class="status-bar-field">Internet | Protected Mode: On</p>
+              <p class="status-bar-field">100%</p>
+            </div>
+          </div>
+        `;
+      });
+    }
   })();
 </script>
 </head>
