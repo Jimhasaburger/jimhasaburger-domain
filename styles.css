@@ -128,35 +128,3 @@ header nav a:hover {
         font-size: 16px;
     }
 }
-
-/* Only triggers when the script adds .win7-active to the html tag */
-.win7-active body {
-    background: #0078D7 url('https://wallpapercave.com/wp/wp2591448.jpg') no-repeat center center fixed !important;
-    background-size: cover !important;
-    color: black !important;
-}
-
-.win7-active header, 
-.win7-active .container {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    color: black !important;
-    padding: 10px !important;
-}
-
-.win7-active h1, 
-.win7-active p, 
-.win7-active header h1 {
-    color: black !important;
-}
-
-.win7-active header nav a {
-    color: #0066cc !important;
-    margin-right: 15px;
-}
-
-/* Fix for the glass blur effect */
-.win7-active .window.glass {
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-}
