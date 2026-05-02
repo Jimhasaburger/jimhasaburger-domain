@@ -13,81 +13,22 @@
     <script>
   (function() {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('aero') !== 'true') return;
-
-    // 1. Force the Aero environment
-    document.documentElement.classList.add('win7-active');
-    
-    // 2. Load 7.css and the necessary font (Segoe UI is key for the glow look)
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://unpkg.com/7.css';
-    document.head.appendChild(link);
-
-    // 3. Inject "Nuke" CSS to kill your dark theme and enable the glow/glass
-    const nukeStyles = document.createElement('style');
-    nukeStyles.textContent = `
-      .win7-active body {
-        background: #0078D7 url('https://wallpapercave.com/wp/wp2591448.jpg') no-repeat center center fixed !important;
-        background-size: cover !important;
-        height: 100vh; margin: 0; display: flex; align-items: center; justify-content: center;
-        font-family: "Segoe UI", "Microsoft YaHei", sans-serif !important;
-      }
-      /* Force all text inside the window to be dark (Win7 style) */
-      .win7-active .window * { color: #000 !important; }
-      .win7-active .title-bar-text { color: #fff !important; }
+    if (params.get('aero') === 'true') {
+      // Load 7.css
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/7.css';
+      document.head.appendChild(link);
       
-      /* Kill your dark header and container backgrounds */
-      .win7-active header, .win7-active .container, .win7-active .window-body {
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-      }
-      .win7-active .window-body { background: rgba(255, 255, 255, 0.8) !important; padding: 10px !important; }
+      // Tell the CSS to activate the overrides
+      document.documentElement.classList.add('win7-active');
       
-      /* Restore Button Glows: Your .btn class was overriding the framework */
-      .win7-active button, .win7-active .btn {
-        all: revert !important;
-        appearance: button !important;
-        display: inline-block;
-        padding: 4px 12px;
-        cursor: pointer;
-      }
-      
-      /* Navigation styling to look like Explorer links */
-      .win7-active nav a {
-        color: #0066cc !important;
-        text-decoration: none !important;
-        padding: 0 5px;
-      }
-      .win7-active nav a:hover { text-decoration: underline !important; }
-    `;
-    document.head.appendChild(nukeStyles);
-
-    // 4. Restructure the DOM
-    window.addEventListener('DOMContentLoaded', () => {
-      const originalBody = document.body.innerHTML;
-      document.body.innerHTML = `
-        <div class="window glass" style="width: 850px; max-width: 95vw;">
-          <div class="title-bar">
-            <div class="title-bar-text">Mint's Website - Windows Internet Explorer</div>
-            <div class="title-bar-controls">
-              <button aria-label="Minimize"></button>
-              <button aria-label="Maximize"></button>
-              <button aria-label="Close"></button>
-            </div>
-          </div>
-          <div class="window-body">
-            ${originalBody}
-          </div>
-          <div class="status-bar">
-            <p class="status-bar-field">Done</p>
-            <p class="status-bar-field" style="flex-grow: 0; width: 200px;">Internet | Protected Mode: On</p>
-            <p class="status-bar-field" style="flex-grow: 0; width: 100px;">100%</p>
-          </div>
-        </div>
-      `;
-    });
+      // Optional: Add the "glass" class to your container automatically
+      window.addEventListener('DOMContentLoaded', () => {
+          document.querySelector('.container')?.classList.add('window', 'glass');
+          document.querySelector('header')?.classList.add('window', 'glass');
+      });
+    }
   })();
 </script>
 </head>
