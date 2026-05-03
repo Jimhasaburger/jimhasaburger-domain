@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>build logic richtext</title> 
-    <link rel="stylesheet" href="https://jimhasaburger.com/styles.css">
     <style>
         /* Global Unround */
-        * { border-radius: 0 !important; }
+        * { border-radius: 0 !important; box-sizing: border-box; }
 
         body { margin: 0; font-family: Arial, sans-serif; background-color: #121212; color: #e0e0e0; }
         .container { padding: 20px; max-width: 1000px; margin: 0 auto; }
         
         h1 { color: #ffffff; margin-bottom: 20px; }
 
-        /* Two-line Control Bar */
         #motd-toolbar { 
             margin-bottom: 20px; 
             display: flex;
@@ -38,8 +36,8 @@
             align-items: center;
             justify-content: center;
             height: 36px;
-            box-sizing: border-box;
             font-size: 14px;
+            vertical-align: middle;
         }
         .btn:hover { background: #00bfff; }
 
@@ -49,9 +47,11 @@
         .custom-picker-container { 
             display: inline-flex; 
             height: 36px;
+            vertical-align: middle;
+            position: relative;
         }
         
-        .custom-btn-main { margin: 0 !important; padding: 0 12px !important; }
+        .custom-btn-main { margin: 0 !important; padding: 0 12px !important; border-right: 1px solid rgba(0,0,0,0.1); }
         
         .custom-btn-dropdown { 
             background: #444; 
@@ -60,8 +60,22 @@
             display: flex; 
             align-items: center; 
             justify-content: center;
-            border-left: 1px solid #333;
             width: 28px;
+            height: 36px;
+        }
+
+        /* Fix for Firefox double icon */
+        .hexPicker { 
+            position: absolute; 
+            opacity: 0; 
+            width: 100%; 
+            height: 100%; 
+            cursor: pointer; 
+            top:0; 
+            left:0; 
+            appearance: none;
+            -moz-appearance: none;
+            border: none;
         }
 
         .preview-square { width: 18px; height: 18px; border: 1px solid #fff; }
@@ -75,7 +89,38 @@
         }
 
         .dropdown-arrow { font-size: 10px; pointer-events: none; color: #ccc; }
-        .hexPicker { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; top:0; left:0; }
+
+        /* Searchable Font Dropdown */
+        .font-search-container {
+            position: absolute;
+            top: 38px;
+            left: 0;
+            background: #222;
+            border: 1px solid #444;
+            z-index: 100;
+            width: 200px;
+            display: none;
+            flex-direction: column;
+        }
+        .font-search-container.active { display: flex; }
+        .font-search-input {
+            background: #333;
+            border: none;
+            border-bottom: 1px solid #444;
+            color: white;
+            padding: 8px;
+            outline: none;
+        }
+        .font-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .font-item {
+            padding: 8px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .font-item:hover { background: DeepSkyBlue; }
 
         /* Editor Styling */
         #editor, #preview { 
@@ -89,7 +134,6 @@
             margin-bottom: 20px;
         }
 
-        /* Normal White Labels */
         label { 
             display: block; 
             font-weight: bold; 
@@ -105,7 +149,6 @@
     <h1>build logic richtext</h1>
 
     <div id="motd-toolbar">
-        <!-- Row 1: The Full Palette -->
         <div class="toolbar-row">
             <button class="btn" data-tag="font color='#000000'"><span class="swatch" style="background:#000"></span></button>
             <button class="btn" data-tag="font color='#0000AA'"><span class="swatch" style="background:#00A"></span></button>
@@ -131,13 +174,21 @@
             </div>
         </div>
 
-        <!-- Row 2: Formatting Controls -->
         <div class="toolbar-row">
-            <button class="btn" data-tag="b"><b>Bold</b></button>
-            <button class="btn" data-tag="u"><u>Underline</u></button>
-            <button class="btn" data-tag="i"><i>Italic</i></button>
-            <button class="btn" data-tag="s">Strike</button>
+            <button class="btn" data-tag="b"><b>B</b></button>
+            <button class="btn" data-tag="u"><u>U</u></button>
+            <button class="btn" data-tag="i"><i>I</i></button>
+            <button class="btn" data-tag="s">S</button>
             
+            <!-- Font Face Picker -->
+            <div class="custom-picker-container">
+                <button class="btn" id="fontFaceBtn" style="min-width: 100px;">Font: Arial</button>
+                <div class="font-search-container" id="fontDropdown">
+                    <input type="text" class="font-search-input" id="fontSearch" placeholder="Search font...">
+                    <div class="font-list" id="fontList"></div>
+                </div>
+            </div>
+
             <div class="custom-picker-container">
                 <button class="btn custom-btn-main" id="applyCustomMark">
                     <span id="markLabel">Mark</span>
@@ -149,13 +200,14 @@
             </div>
 
             <button class="btn" data-tag="stroke thickness='2' color='#000000'">Stroke</button>
-            <button class="btn" id="addBr">Break &lt;br/&gt;</button>
+            <button class="btn" id="addBr">Break</button>
             <button class="btn" id="clearTags" style="background: #ff4444;">Reset</button>
         </div>
     </div>
 
     <label>Input:</label>
-    <textarea id="editor" rows="6">isnt <font color="#00FF00">richtext</font> cool <mark color="#FFFF00">today</mark>?</textarea>
+    <!-- Removed "today" from default text -->
+    <textarea id="editor" rows="6">isnt <font color="#00FF00">richtext</font> cool?</textarea>
 
     <label>Preview:</label>
     <div id="preview" style="min-height:100px;"></div>
@@ -164,12 +216,49 @@
 <script>
     const editor = document.getElementById("editor");
     const preview = document.getElementById("preview");
-    
     const fontHex = document.getElementById("fontHex");
     const fontPreview = document.getElementById("fontPreview");
     const markHex = document.getElementById("markHex");
     const markLabel = document.getElementById("markLabel");
 
+    // Roblox Font List
+    const robloxFonts = ["Arial", "BuilderSans", "Gotham", "Roboto", "Ubuntu", "Arcade", "Fantasy", "Antique", "Cartoon", "Code", "SciFi", "Bodoni", "Garamond"];
+    let selectedFont = "Arial";
+
+    // Setup Font Dropdown
+    const fontListEl = document.getElementById("fontList");
+    const fontDropdown = document.getElementById("fontDropdown");
+    const fontSearch = document.getElementById("fontSearch");
+    const fontFaceBtn = document.getElementById("fontFaceBtn");
+
+    function renderFonts(filter = "") {
+        fontListEl.innerHTML = "";
+        robloxFonts.filter(f => f.toLowerCase().includes(filter.toLowerCase())).forEach(font => {
+            const div = document.createElement("div");
+            div.className = "font-item";
+            div.innerText = font;
+            div.onclick = () => {
+                selectedFont = font;
+                fontFaceBtn.innerText = "Font: " + font;
+                applyTag(`font face='${font}'`);
+                fontDropdown.classList.remove("active");
+            };
+            fontListEl.appendChild(div);
+        });
+    }
+
+    fontFaceBtn.onclick = (e) => {
+        e.stopPropagation();
+        fontDropdown.classList.toggle("active");
+        if(fontDropdown.classList.contains("active")) fontSearch.focus();
+    };
+
+    fontSearch.oninput = (e) => renderFonts(e.target.value);
+    document.onclick = () => fontDropdown.classList.remove("active");
+    fontDropdown.onclick = (e) => e.stopPropagation();
+    renderFonts();
+
+    // Standard Tags
     document.querySelectorAll("[data-tag]").forEach(btn => {
         btn.onclick = () => applyTag(btn.dataset.tag);
     });
@@ -203,21 +292,25 @@
 
     function translateRobloxToHtml(text) {
         let html = text;
+        // Stroke
         html = html.replace(/<stroke\s+([^>]+)>(.*?)<\/stroke>/gi, (match, attrs, content) => {
-            const colorMatch = attrs.match(/color=['"]([^'"]+)['"]/);
-            const thickMatch = attrs.match(/thickness=['"]([^'"]+)['"]/);
-            const color = colorMatch ? colorMatch[1] : "#000";
-            const thick = thickMatch ? thickMatch[1] : "1";
+            const color = attrs.match(/color=['"]([^'"]+)['"]/)?.[1] || "#000";
+            const thick = attrs.match(/thickness=['"]([^'"]+)['"]/)?.[1] || "1";
             const shadow = `-${thick}px -${thick}px 0 ${color}, ${thick}px -${thick}px 0 ${color}, -${thick}px ${thick}px 0 ${color}, ${thick}px ${thick}px 0 ${color}`;
             return `<span style="text-shadow: ${shadow}">${content}</span>`;
         });
+        // Font (Color and Face)
         html = html.replace(/<font\s+([^>]+)>(.*?)<\/font>/gi, (match, attrs, content) => {
-            const colorMatch = attrs.match(/color=['"]([^'"]+)['"]/);
-            return `<span style="color: ${colorMatch ? colorMatch[1] : '#fff'}">${content}</span>`;
+            const color = attrs.match(/color=['"]([^'"]+)['"]/)?.[1];
+            const face = attrs.match(/face=['"]([^'"]+)['"]/)?.[1];
+            let style = "";
+            if(color) style += `color: ${color};`;
+            if(face) style += `font-family: ${face}, Arial;`;
+            return `<span style="${style}">${content}</span>`;
         });
+        // Mark
         html = html.replace(/<mark\s*([^>]*)>(.*?)<\/mark>/gi, (match, attrs, content) => {
-            const colorMatch = attrs.match(/color=['"]([^'"]+)['"]/);
-            const color = colorMatch ? colorMatch[1] : "#ffff00";
+            const color = attrs.match(/color=['"]([^'"]+)['"]/)?.[1] || "#ffff00";
             return `<mark style="background-color: ${color}; color: #000; padding: 0 4px;">${content}</mark>`;
         });
         return html.replace(/\n/g, '<br/>');
