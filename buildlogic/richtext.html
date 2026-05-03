@@ -26,24 +26,26 @@
             gap: 5px;
         }
 
+        /* Base Button Style */
         .btn { 
             background: DeepSkyBlue; 
             color: white; 
             border: none; 
-            padding: 8px 12px; 
+            padding: 0 15px; 
             cursor: pointer; 
-            display: inline-flex;
+            display: inline-flex; 
             align-items: center;
             justify-content: center;
             height: 36px;
             font-size: 14px;
             vertical-align: middle;
+            white-space: nowrap;
         }
         .btn:hover { background: #00bfff; }
 
         .swatch { width: 16px; height: 16px; display: inline-block; border: 1px solid rgba(255,255,255,0.3); }
 
-        /* Custom Picker Logic */
+        /* Standardized Dropdown Container */
         .custom-picker-container { 
             display: inline-flex; 
             height: 36px;
@@ -51,7 +53,7 @@
             position: relative;
         }
         
-        .custom-btn-main { margin: 0 !important; padding: 0 12px !important; border-right: 1px solid rgba(0,0,0,0.1); }
+        .custom-btn-main { margin: 0 !important; border-right: 1px solid rgba(0,0,0,0.2) !important; }
         
         .custom-btn-dropdown { 
             background: #444; 
@@ -62,9 +64,11 @@
             justify-content: center;
             width: 28px;
             height: 36px;
+            cursor: pointer;
         }
+        .custom-btn-dropdown:hover { background: #555; }
 
-        /* Fix for Firefox double icon */
+        /* Firefox Fix: Remove double arrow/swatch */
         .hexPicker { 
             position: absolute; 
             opacity: 0; 
@@ -73,8 +77,9 @@
             cursor: pointer; 
             top:0; 
             left:0; 
-            appearance: none;
-            -moz-appearance: none;
+            appearance: none !important;
+            -moz-appearance: none !important;
+            -webkit-appearance: none !important;
             border: none;
         }
 
@@ -90,17 +95,18 @@
 
         .dropdown-arrow { font-size: 10px; pointer-events: none; color: #ccc; }
 
-        /* Searchable Font Dropdown */
+        /* Searchable Font List UI */
         .font-search-container {
             position: absolute;
-            top: 38px;
+            top: 36px;
             left: 0;
             background: #222;
             border: 1px solid #444;
             z-index: 100;
-            width: 200px;
+            width: 220px;
             display: none;
             flex-direction: column;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
         .font-search-container.active { display: flex; }
         .font-search-input {
@@ -108,28 +114,26 @@
             border: none;
             border-bottom: 1px solid #444;
             color: white;
-            padding: 8px;
+            padding: 10px;
             outline: none;
+            font-size: 14px;
         }
-        .font-list {
-            max-height: 200px;
-            overflow-y: auto;
-        }
+        .font-list { max-height: 250px; overflow-y: auto; }
         .font-item {
-            padding: 8px;
+            padding: 10px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 14px;
+            color: #ccc;
         }
-        .font-item:hover { background: DeepSkyBlue; }
+        .font-item:hover { background: DeepSkyBlue; color: white; }
 
-        /* Editor Styling */
+        /* Editor & Preview */
         #editor, #preview { 
             background-color: #1a1a1a; 
             color: #ffffff; 
             border: 1px solid #333; 
             padding: 15px; 
             width: 100%; 
-            box-sizing: border-box; 
             font-size: 16px;
             margin-bottom: 20px;
         }
@@ -149,6 +153,7 @@
     <h1>build logic richtext</h1>
 
     <div id="motd-toolbar">
+        <!-- Row 1: Color Palette -->
         <div class="toolbar-row">
             <button class="btn" data-tag="font color='#000000'"><span class="swatch" style="background:#000"></span></button>
             <button class="btn" data-tag="font color='#0000AA'"><span class="swatch" style="background:#00A"></span></button>
@@ -167,25 +172,29 @@
                 <button class="btn custom-btn-main" id="applyCustomFont">
                     <span id="fontPreview" class="preview-square" style="background: #00ff00;"></span>
                 </button>
-                <div class="btn custom-btn-dropdown">
+                <div class="custom-btn-dropdown">
                     <span class="dropdown-arrow">▼</span>
                     <input type="color" id="fontHex" class="hexPicker" value="#00ff00">
                 </div>
             </div>
         </div>
 
+        <!-- Row 2: Formatting -->
         <div class="toolbar-row">
-            <button class="btn" data-tag="b"><b>B</b></button>
-            <button class="btn" data-tag="u"><u>U</u></button>
-            <button class="btn" data-tag="i"><i>I</i></button>
-            <button class="btn" data-tag="s">S</button>
+            <button class="btn" data-tag="b"><b>Bold</b></button>
+            <button class="btn" data-tag="u"><u>Underline</u></button>
+            <button class="btn" data-tag="i"><i>Italic</i></button>
+            <button class="btn" data-tag="s">Strike</button>
             
-            <!-- Font Face Picker -->
+            <!-- Standardized Font Face Picker -->
             <div class="custom-picker-container">
-                <button class="btn" id="fontFaceBtn" style="min-width: 100px;">Font: Arial</button>
-                <div class="font-search-container" id="fontDropdown">
-                    <input type="text" class="font-search-input" id="fontSearch" placeholder="Search font...">
-                    <div class="font-list" id="fontList"></div>
+                <button class="btn custom-btn-main" id="applyFontFace">Font: Arial</button>
+                <div class="custom-btn-dropdown" id="fontDropdownTrigger">
+                    <span class="dropdown-arrow">▼</span>
+                    <div class="font-search-container" id="fontDropdown">
+                        <input type="text" class="font-search-input" id="fontSearch" placeholder="Search Roblox fonts...">
+                        <div class="font-list" id="fontList"></div>
+                    </div>
                 </div>
             </div>
 
@@ -193,20 +202,19 @@
                 <button class="btn custom-btn-main" id="applyCustomMark">
                     <span id="markLabel">Mark</span>
                 </button>
-                <div class="btn custom-btn-dropdown">
+                <div class="custom-btn-dropdown">
                     <span class="dropdown-arrow">▼</span>
                     <input type="color" id="markHex" class="hexPicker" value="#ffff00">
                 </div>
             </div>
 
             <button class="btn" data-tag="stroke thickness='2' color='#000000'">Stroke</button>
-            <button class="btn" id="addBr">Break</button>
+            <button class="btn" id="addBr">&lt;br&gt;</button>
             <button class="btn" id="clearTags" style="background: #ff4444;">Reset</button>
         </div>
     </div>
 
     <label>Input:</label>
-    <!-- Removed "today" from default text -->
     <textarea id="editor" rows="6">isnt <font color="#00FF00">richtext</font> cool?</textarea>
 
     <label>Preview:</label>
@@ -221,15 +229,16 @@
     const markHex = document.getElementById("markHex");
     const markLabel = document.getElementById("markLabel");
 
-    // Roblox Font List
+    // Roblox Fonts
     const robloxFonts = ["Arial", "BuilderSans", "Gotham", "Roboto", "Ubuntu", "Arcade", "Fantasy", "Antique", "Cartoon", "Code", "SciFi", "Bodoni", "Garamond"];
     let selectedFont = "Arial";
 
     // Setup Font Dropdown
     const fontListEl = document.getElementById("fontList");
     const fontDropdown = document.getElementById("fontDropdown");
+    const fontDropdownTrigger = document.getElementById("fontDropdownTrigger");
     const fontSearch = document.getElementById("fontSearch");
-    const fontFaceBtn = document.getElementById("fontFaceBtn");
+    const applyFontFace = document.getElementById("applyFontFace");
 
     function renderFonts(filter = "") {
         fontListEl.innerHTML = "";
@@ -237,28 +246,29 @@
             const div = document.createElement("div");
             div.className = "font-item";
             div.innerText = font;
-            div.onclick = () => {
+            div.onclick = (e) => {
+                e.stopPropagation();
                 selectedFont = font;
-                fontFaceBtn.innerText = "Font: " + font;
-                applyTag(`font face='${font}'`);
+                applyFontFace.innerText = "Font: " + font;
                 fontDropdown.classList.remove("active");
             };
             fontListEl.appendChild(div);
         });
     }
 
-    fontFaceBtn.onclick = (e) => {
+    fontDropdownTrigger.onclick = (e) => {
         e.stopPropagation();
         fontDropdown.classList.toggle("active");
         if(fontDropdown.classList.contains("active")) fontSearch.focus();
     };
 
+    applyFontFace.onclick = () => applyTag(`font face='${selectedFont}'`);
     fontSearch.oninput = (e) => renderFonts(e.target.value);
     document.onclick = () => fontDropdown.classList.remove("active");
     fontDropdown.onclick = (e) => e.stopPropagation();
     renderFonts();
 
-    // Standard Tags
+    // Standard Buttons
     document.querySelectorAll("[data-tag]").forEach(btn => {
         btn.onclick = () => applyTag(btn.dataset.tag);
     });
@@ -299,13 +309,13 @@
             const shadow = `-${thick}px -${thick}px 0 ${color}, ${thick}px -${thick}px 0 ${color}, -${thick}px ${thick}px 0 ${color}, ${thick}px ${thick}px 0 ${color}`;
             return `<span style="text-shadow: ${shadow}">${content}</span>`;
         });
-        // Font (Color and Face)
+        // Font
         html = html.replace(/<font\s+([^>]+)>(.*?)<\/font>/gi, (match, attrs, content) => {
             const color = attrs.match(/color=['"]([^'"]+)['"]/)?.[1];
             const face = attrs.match(/face=['"]([^'"]+)['"]/)?.[1];
             let style = "";
             if(color) style += `color: ${color};`;
-            if(face) style += `font-family: ${face}, Arial;`;
+            if(face) style += `font-family: ${face}, Arial, sans-serif;`;
             return `<span style="${style}">${content}</span>`;
         });
         // Mark
