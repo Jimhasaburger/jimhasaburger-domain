@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>build logic richtext</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>build logic richtext</h1>
+
+    <div id="motd-toolbar">
+        <button class="btn" data-tag="font color='#000000'"><span style="background:#000"></span></button>
+        <button class="btn" data-tag="font color='#0000AA'"><span style="background:#00A"></span></button>
+        <button class="btn" data-tag="font color='#00AA00'"><span style="background:#0A0"></span></button>
+        <button class="btn" data-tag="font color='#00AAAA'"><span style="background:#0AA"></span></button>
+        <button class="btn" data-tag="font color='#AA0000'"><span style="background:#A00"></span></button>
+        <button class="btn" data-tag="font color='#AA00AA'"><span style="background:#A0A"></span></button>
+        <button class="btn" data-tag="font color='#FFAA00'"><span style="background:#FA0"></span></button>
+        <button class="btn" data-tag="font color='#AAAAAA'"><span style="background:#AAA"></span></button>
+        <button class="btn" data-tag="font color='#55FF55'"><span style="background:#5F5"></span></button>
+        <button class="btn" data-tag="font color='#55FFFF'"><span style="background:#5FF"></span></button>
+        <button class="btn" data-tag="font color='#FF5555'"><span style="background:#F55"></span></button>
+        <button class="btn" data-tag="font color='#FFFFFF'"><span style="background:#FFF; border:1px solid #000"></span></button>
+        <br>
+        <button class="btn" data-tag="b"><b>Bold</b></button>
+        <button class="btn" data-tag="u"><u>Underline</u></button>
+        <button class="btn" data-tag="i"><i>Italic</i></button>
+        <button class="btn" data-tag="s">Strike</button>
+        <button class="btn" data-tag="stroke thickness='2' color='#000000'">Stroke</button>
+        <button class="btn" id="clearTags">Reset</button>
+    </div>
+
+    <label>input:</label>
+    <textarea id="editor" rows="6">richtext is <font color='#55FFFF'><b>cool</b></font>!</textarea>
+
+    <label>other:</label>
+    <select id="extraOption">
+        <option value="none">None</option>
+        <option value="b">Bold All</option>
+        <option value="i">Italic All</option>
+        <option value="u">Underline All</option>
+        <option value="stroke">Stroke All</option>
+    </select>
+
+    <label>Preview:</label>
+    <div id="preview"></div>
+
+    <label>Output:</label>
+    <div id="output"></div>
+</div>
+
+<script>
+    const editor = document.getElementById("editor");
+    const preview = document.getElementById("preview");
+    const output = document.getElementById("output");
+    const extraOption = document.getElementById("extraOption");
+
+    document.querySelectorAll("[data-tag]").forEach(btn => {
+        btn.onclick = () => {
+            let fullTag = btn.dataset.tag;
+            let tagName = fullTag.split(' ')[0]; 
+            let start = editor.selectionStart;
+            let end = editor.selectionEnd;
+            let val = editor.value;
+            editor.value = val.slice(0, start) + `<${fullTag}>` + val.slice(start, end) + `</${tagName}>` + val.slice(end);
+            editor.focus();
+            update();
+        };
+    });
+
+    document.getElementById("clearTags").onclick = () => {
+        editor.value = editor.value.replace(/<[^>]*>/g, '');
+        update();
+    };
+
+    function update() {
+        let text = editor.value;
+        const extra = extraOption.value;
+
+        if (extra !== "none") {
+            if (extra === "stroke") {
+                text = `<stroke thickness="2" color="#000000">${text}</stroke>`;
+            } else {
+                text = `<${extra}>${text}</${extra}>`;
+            }
+        }
+
+        const openCount = (text.match(/<[^/][^>]*>/g) || []).length;
+        const closeCount = (text.match(/<\/[^>]+>/g) || []).length;
+
+        if (openCount !== closeCount) {
+            output.classList.add("syntax-error");
+        } else {
+            output.classList.remove("syntax-error");
+        }
+
+        preview.innerHTML = text;
+        output.textContent = text;
+    }
+
+    editor.addEventListener("input", update);
+    extraOption.addEventListener("change", update);
+    update();
+</script>
+</body>
+</html>
