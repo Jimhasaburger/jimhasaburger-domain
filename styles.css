@@ -128,3 +128,71 @@ header nav a:hover {
         font-size: 16px;
     }
 }
+
+.container {
+    padding: 20px;
+    max-width: 850px;
+    margin: 0 auto;
+}
+
+#motd-toolbar {
+    background: #1e1e1e;
+    padding: 10px;
+    border: 1px solid #333;
+    margin-bottom: 10px;
+}
+
+#motd-toolbar .btn span {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+}
+
+label {
+    display: block;
+    margin: 15px 0 5px;
+    font-weight: bold;
+    color: DeepSkyBlue;
+}
+
+textarea#editor {
+    width: 100%;
+    background: #000;
+    color: #fff;
+    border: 1px solid #444;
+    padding: 10px;
+    font-family: monospace;
+    box-sizing: border-box;
+}
+
+#preview {
+    background: #000;
+    border: 1px solid #444;
+    padding: 15px;
+    min-height: 50px;
+    margin-bottom: 10px;
+    white-space: pre-wrap;
+    font-size: 18px;
+}
+
+#output {
+    background: #111;
+    color: #e0e0e0;
+    padding: 10px;
+    font-family: monospace;
+    border: 1px solid #333;
+    word-break: break-all;
+    min-height: 20px;
+}
+
+#output.syntax-error {
+    border-bottom: 2px solid #ff4444;
+}
+
+select {
+    background: #333;
+    color: white;
+    border: 1px solid #555;
+    padding: 5px;
+}
