@@ -2,17 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>build logic richtext </title> 
+    <title>build logic richtext</title> 
     <link rel="stylesheet" href="https://jimhasaburger.com/styles.css">
-    <style>
-        .color-picker-wrapper {
-            display: inline-block;
-            position: relative;
-            vertical-align: middle;
-        }
-        .picker-btn { width: 40px; height: 30px; cursor: pointer; }
-        #preview mark { background-color: #009966; color: white; }
-    </style>
 </head>
 <body>
 
@@ -34,8 +25,13 @@
         <button class="btn" data-tag="font color='#FF5555'"><span style="background:#F55"></span></button>
         <button class="btn" data-tag="font color='#FFFFFF'"><span style="background:#FFF; border:1px solid #000"></span></button>
         
-        <div class="color-picker-wrapper">
-            <input type="color" id="hexPicker" class="picker-btn" value="#ff0000" title="Custom Color">
+        <!-- NEW Custom Split Button -->
+        <div class="custom-picker-container">
+            <button class="btn custom-btn-main" id="applyCustom">Custom</button>
+            <div class="btn custom-btn-dropdown">
+                <div class="dropdown-arrow"></div>
+                <input type="color" id="hexPicker" value="#00ff00">
+            </div>
         </div>
         
         <br>
@@ -50,14 +46,13 @@
     </div>
 
     <label>input:</label>
-    <!-- Updated Default Text Here -->
     <textarea id="editor" rows="6">isnt <font color="#00FF00">richtext</font> cool<mark>?</mark></textarea>
 
     <label>Preview:</label>
-    <div id="preview" style="padding:10px; border:1px solid #ccc; min-height:50px;"></div>
+    <div id="preview" style="min-height:50px;"></div>
 
     <label>Output (Copy this):</label>
-    <div id="output" style="padding:10px; font-family:monospace;"></div>
+    <div id="output"></div>
 </div>
 
 <script>
@@ -65,12 +60,20 @@
     const preview = document.getElementById("preview");
     const output = document.getElementById("output");
     const hexPicker = document.getElementById("hexPicker");
+    const applyCustom = document.getElementById("applyCustom");
 
+    // Palette logic
     document.querySelectorAll("[data-tag]").forEach(btn => {
-        btn.onclick = () => { applyTag(btn.dataset.tag); };
+        btn.onclick = () => applyTag(btn.dataset.tag);
     });
 
-    hexPicker.onchange = () => {
+    // Custom Button Logic: Clicking the word "Custom" applies the last chosen color
+    applyCustom.onclick = () => {
+        applyTag(`font color='${hexPicker.value.toUpperCase()}'`);
+    };
+
+    // If they pick a color from the dropdown, apply it immediately
+    hexPicker.oninput = () => {
         applyTag(`font color='${hexPicker.value.toUpperCase()}'`);
     };
 
@@ -106,7 +109,6 @@
             const shadow = `-${thick}px -${thick}px 0 ${color}, ${thick}px -${thick}px 0 ${color}, -${thick}px ${thick}px 0 ${color}, ${thick}px ${thick}px 0 ${color}`;
             return `<span style="text-shadow: ${shadow}">${content}</span>`;
         });
-
         html = html.replace(/<font\s+([^>]+)>(.*?)<\/font>/gi, (match, attrs, content) => {
             const transMatch = attrs.match(/transparency=['"]([^'"]+)['"]/);
             const colorMatch = attrs.match(/color=['"]([^'"]+)['"]/);
@@ -115,7 +117,6 @@
             if (colorMatch) styles.push(`color: ${colorMatch[1]}`);
             return `<span style="${styles.join('; ')}">${content}</span>`;
         });
-
         html = html.replace(/<(uppercase|uc)>(.*?)<\/\1>/gi, '<span style="text-transform: uppercase;">$2</span>');
         html = html.replace(/<(smallcaps|sc)>(.*?)<\/\1>/gi, '<span style="font-variant: small-caps;">$2</span>');
         return html;
@@ -125,7 +126,7 @@
         let text = editor.value;
         const openCount = (text.match(/<[^/!][^>]*>/g) || []).length;
         const closeCount = (text.match(/<\/[^>]+>/g) || []).length;
-        output.style.borderColor = (openCount !== closeCount) ? "red" : "#444";
+        output.style.borderColor = (openCount !== closeCount) ? "#ff4444" : "#333";
         preview.innerHTML = translateRobloxToHtml(text);
         output.textContent = text;
     }
