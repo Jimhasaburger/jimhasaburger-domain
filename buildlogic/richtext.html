@@ -5,35 +5,98 @@
     <title>build logic richtext</title> 
     <link rel="stylesheet" href="https://jimhasaburger.com/styles.css">
     <style>
-        .btn span {
-            display: inline-block;
-            width: 14px;
-            height: 14px;
-            vertical-align: middle;
-        }
+        /* Global Unround */
+        * { border-radius: 0 !important; }
 
-        .preview-box {
-            width: 14px;
-            height: 14px;
-            border: 1px solid #fff;
-            display: inline-block;
-            vertical-align: middle;
-        }
-
-        /* Toolbar layout */
-        #motd-toolbar { margin-bottom: 15px; }
-        
         body { margin: 0; font-family: Arial, sans-serif; background-color: #121212; color: #e0e0e0; }
         .container { padding: 20px; max-width: 1000px; margin: 0 auto; }
-        .btn { background: DeepSkyBlue; color: white; border: none; padding: 8px 10px; margin: 5px 2px; cursor: pointer; }
-        #editor, #preview { background-color: #1a1a1a; color: #ffffff; border: 1px solid #333; border-radius: 4px; padding: 12px; width: 100%; box-sizing: border-box; }
         
-        .custom-picker-container { display: inline-flex; vertical-align: middle; margin-right: 5px; }
-        .custom-btn-dropdown { width: 25px; position: relative; background: #444; display: flex; align-items: center; justify-content: center; padding: 0 !important; }
-        .hexPicker { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
-        label { display: block; margin-top: 15px; font-weight: bold; margin-bottom: 5px; }
+        h1 { color: #ffffff; margin-bottom: 20px; }
+
+        /* Two-line Control Bar */
+        #motd-toolbar { 
+            margin-bottom: 20px; 
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
         
-        .dropdown-arrow { font-size: 10px; color: #ccc; }
+        .toolbar-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn { 
+            background: DeepSkyBlue; 
+            color: white; 
+            border: none; 
+            padding: 8px 12px; 
+            cursor: pointer; 
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 36px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        .btn:hover { background: #00bfff; }
+
+        .swatch { width: 16px; height: 16px; display: inline-block; border: 1px solid rgba(255,255,255,0.3); }
+
+        /* Custom Picker Logic */
+        .custom-picker-container { 
+            display: inline-flex; 
+            height: 36px;
+        }
+        
+        .custom-btn-main { margin: 0 !important; padding: 0 12px !important; }
+        
+        .custom-btn-dropdown { 
+            background: #444; 
+            padding: 0 !important; 
+            position: relative; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            border-left: 1px solid #333;
+            width: 28px;
+        }
+
+        .preview-square { width: 18px; height: 18px; border: 1px solid #fff; }
+        
+        #markLabel { 
+            background: #ffff00; 
+            color: #000; 
+            padding: 2px 6px; 
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        .dropdown-arrow { font-size: 10px; pointer-events: none; color: #ccc; }
+        .hexPicker { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; top:0; left:0; }
+
+        /* Editor Styling */
+        #editor, #preview { 
+            background-color: #1a1a1a; 
+            color: #ffffff; 
+            border: 1px solid #333; 
+            padding: 15px; 
+            width: 100%; 
+            box-sizing: border-box; 
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        /* Normal White Labels */
+        label { 
+            display: block; 
+            font-weight: bold; 
+            margin-bottom: 8px; 
+            color: #ffffff; 
+            font-size: 14px; 
+        }
     </style>
 </head>
 <body>
@@ -42,58 +105,60 @@
     <h1>build logic richtext</h1>
 
     <div id="motd-toolbar">
-        <!-- Palette Colors -->
-        <button class="btn" data-tag="font color='#000000'"><span style="background:#000"></span></button>
-        <button class="btn" data-tag="font color='#0000AA'"><span style="background:#00A"></span></button>
-        <button class="btn" data-tag="font color='#00AA00'"><span style="background:#0A0"></span></button>
-        <button class="btn" data-tag="font color='#00AAAA'"><span style="background:#0AA"></span></button>
-        <button class="btn" data-tag="font color='#AA0000'"><span style="background:#A00"></span></button>
-        <button class="btn" data-tag="font color='#AA00AA'"><span style="background:#A0A"></span></button>
-        <button class="btn" data-tag="font color='#FFA000'"><span style="background:#FA0"></span></button>
-        <button class="btn" data-tag="font color='#AAAAAA'"><span style="background:#AAA"></span></button>
-        <button class="btn" data-tag="font color='#55FF55'"><span style="background:#5F5"></span></button>
-        <button class="btn" data-tag="font color='#55FFFF'"><span style="background:#5FF"></span></button>
-        <button class="btn" data-tag="font color='#FF5555'"><span style="background:#F55"></span></button>
-        <button class="btn" data-tag="font color='#FFFFFF'"><span style="background:#FFF; border:1px solid #000"></span></button>
-        
-        <!-- Custom Font Color -->
-        <div class="custom-picker-container">
-            <button class="btn" id="applyCustomFont" title="Apply Custom Font Color">
-                <span id="fontPreview" class="preview-box" style="background: #00ff00;"></span>
-            </button>
-            <div class="btn custom-btn-dropdown">
-                <span class="dropdown-arrow">▼</span>
-                <input type="color" id="fontHex" class="hexPicker" value="#00ff00">
-            </div>
-        </div>
-        
-        <br>
-        <button class="btn" data-tag="b"><b>B</b></button>
-        <button class="btn" data-tag="u"><u>U</u></button>
-        <button class="btn" data-tag="i"><i>I</i></button>
-        <button class="btn" data-tag="s">S</button>
-        
-        <!-- Custom Mark Color -->
-        <div class="custom-picker-container">
-            <button class="btn" id="applyCustomMark" title="Apply Custom Mark">
-                <span id="markPreview" class="preview-box" style="background: #ffff00;"></span>
-            </button>
-            <div class="btn custom-btn-dropdown">
-                <span class="dropdown-arrow">▼</span>
-                <input type="color" id="markHex" class="hexPicker" value="#ffff00">
+        <!-- Row 1: The Full Palette -->
+        <div class="toolbar-row">
+            <button class="btn" data-tag="font color='#000000'"><span class="swatch" style="background:#000"></span></button>
+            <button class="btn" data-tag="font color='#0000AA'"><span class="swatch" style="background:#00A"></span></button>
+            <button class="btn" data-tag="font color='#00AA00'"><span class="swatch" style="background:#0A0"></span></button>
+            <button class="btn" data-tag="font color='#00AAAA'"><span class="swatch" style="background:#0AA"></span></button>
+            <button class="btn" data-tag="font color='#AA0000'"><span class="swatch" style="background:#A00"></span></button>
+            <button class="btn" data-tag="font color='#AA00AA'"><span class="swatch" style="background:#A0A"></span></button>
+            <button class="btn" data-tag="font color='#FFAA00'"><span class="swatch" style="background:#FA0"></span></button>
+            <button class="btn" data-tag="font color='#AAAAAA'"><span class="swatch" style="background:#AAA"></span></button>
+            <button class="btn" data-tag="font color='#55FF55'"><span class="swatch" style="background:#5F5"></span></button>
+            <button class="btn" data-tag="font color='#55FFFF'"><span class="swatch" style="background:#5FF"></span></button>
+            <button class="btn" data-tag="font color='#FF5555'"><span class="swatch" style="background:#F55"></span></button>
+            <button class="btn" data-tag="font color='#FFFFFF'"><span class="swatch" style="background:#FFF; border:1px solid #000"></span></button>
+            
+            <div class="custom-picker-container">
+                <button class="btn custom-btn-main" id="applyCustomFont">
+                    <span id="fontPreview" class="preview-square" style="background: #00ff00;"></span>
+                </button>
+                <div class="btn custom-btn-dropdown">
+                    <span class="dropdown-arrow">▼</span>
+                    <input type="color" id="fontHex" class="hexPicker" value="#00ff00">
+                </div>
             </div>
         </div>
 
-        <button class="btn" data-tag="stroke thickness='2' color='#000000'">Stroke</button>
-        <button class="btn" id="addBr">Break</button>
-        <button class="btn" id="clearTags" style="background: #ff4444;">Reset</button>
+        <!-- Row 2: Formatting Controls -->
+        <div class="toolbar-row">
+            <button class="btn" data-tag="b"><b>Bold</b></button>
+            <button class="btn" data-tag="u"><u>Underline</u></button>
+            <button class="btn" data-tag="i"><i>Italic</i></button>
+            <button class="btn" data-tag="s">Strike</button>
+            
+            <div class="custom-picker-container">
+                <button class="btn custom-btn-main" id="applyCustomMark">
+                    <span id="markLabel">Mark</span>
+                </button>
+                <div class="btn custom-btn-dropdown">
+                    <span class="dropdown-arrow">▼</span>
+                    <input type="color" id="markHex" class="hexPicker" value="#ffff00">
+                </div>
+            </div>
+
+            <button class="btn" data-tag="stroke thickness='2' color='#000000'">Stroke</button>
+            <button class="btn" id="addBr">Break &lt;br/&gt;</button>
+            <button class="btn" id="clearTags" style="background: #ff4444;">Reset</button>
+        </div>
     </div>
 
-    <label>Rich Text Input:</label>
-    <textarea id="editor" rows="6">isnt <font color="#00FF00">richtext</font> cool<mark color="#FFFF00">?</mark></textarea>
+    <label>Input:</label>
+    <textarea id="editor" rows="6">isnt <font color="#00FF00">richtext</font> cool <mark color="#FFFF00">today</mark>?</textarea>
 
     <label>Preview:</label>
-    <div id="preview" style="min-height:50px;"></div>
+    <div id="preview" style="min-height:100px;"></div>
 </div>
 
 <script>
@@ -102,27 +167,22 @@
     
     const fontHex = document.getElementById("fontHex");
     const fontPreview = document.getElementById("fontPreview");
-    const applyCustomFont = document.getElementById("applyCustomFont");
-
     const markHex = document.getElementById("markHex");
-    const markPreview = document.getElementById("markPreview");
-    const applyCustomMark = document.getElementById("applyCustomMark");
+    const markLabel = document.getElementById("markLabel");
 
-    // Standard Tags
     document.querySelectorAll("[data-tag]").forEach(btn => {
         btn.onclick = () => applyTag(btn.dataset.tag);
     });
 
-    // Custom Font Logic
     fontHex.oninput = () => fontPreview.style.background = fontHex.value;
-    applyCustomFont.onclick = () => applyTag(`font color='${fontHex.value.toUpperCase()}'`);
+    markHex.oninput = () => markLabel.style.background = markHex.value;
 
-    // Custom Mark Logic
-    markHex.oninput = () => markPreview.style.background = markHex.value;
-    applyCustomMark.onclick = () => applyTag(`mark color='${markHex.value.toUpperCase()}'`);
+    document.getElementById("applyCustomFont").onclick = () => applyTag(`font color='${fontHex.value.toUpperCase()}'`);
+    document.getElementById("applyCustomMark").onclick = () => applyTag(`mark color='${markHex.value.toUpperCase()}'`);
 
     document.getElementById("addBr").onclick = () => {
-        insertTextAtCursor("<br/>");
+        let start = editor.selectionStart;
+        editor.value = editor.value.slice(0, start) + "<br/>" + editor.value.slice(start);
         update();
     };
 
@@ -136,12 +196,6 @@
         update();
     }
 
-    function insertTextAtCursor(text) {
-        let start = editor.selectionStart;
-        let val = editor.value;
-        editor.value = val.slice(0, start) + text + val.slice(start);
-    }
-
     document.getElementById("clearTags").onclick = () => {
         editor.value = editor.value.replace(/<[^>]*>/g, '');
         update();
@@ -149,7 +203,6 @@
 
     function translateRobloxToHtml(text) {
         let html = text;
-        // Stroke
         html = html.replace(/<stroke\s+([^>]+)>(.*?)<\/stroke>/gi, (match, attrs, content) => {
             const colorMatch = attrs.match(/color=['"]([^'"]+)['"]/);
             const thickMatch = attrs.match(/thickness=['"]([^'"]+)['"]/);
@@ -158,25 +211,16 @@
             const shadow = `-${thick}px -${thick}px 0 ${color}, ${thick}px -${thick}px 0 ${color}, -${thick}px ${thick}px 0 ${color}, ${thick}px ${thick}px 0 ${color}`;
             return `<span style="text-shadow: ${shadow}">${content}</span>`;
         });
-        // Font
         html = html.replace(/<font\s+([^>]+)>(.*?)<\/font>/gi, (match, attrs, content) => {
             const colorMatch = attrs.match(/color=['"]([^'"]+)['"]/);
-            const transMatch = attrs.match(/transparency=['"]([^'"]+)['"]/);
-            let styles = [];
-            if (colorMatch) styles.push(`color: ${colorMatch[1]}`);
-            if (transMatch) styles.push(`opacity: ${1 - parseFloat(transMatch[1])}`);
-            return `<span style="${styles.join('; ')}">${content}</span>`;
+            return `<span style="color: ${colorMatch ? colorMatch[1] : '#fff'}">${content}</span>`;
         });
-        // Mark (Custom color support)
         html = html.replace(/<mark\s*([^>]*)>(.*?)<\/mark>/gi, (match, attrs, content) => {
             const colorMatch = attrs.match(/color=['"]([^'"]+)['"]/);
             const color = colorMatch ? colorMatch[1] : "#ffff00";
-            return `<mark style="background-color: ${color}; color: #000;">${content}</mark>`;
+            return `<mark style="background-color: ${color}; color: #000; padding: 0 4px;">${content}</mark>`;
         });
-        
-        html = html.replace(/<(uppercase|uc)>(.*?)<\/\1>/gi, '<span style="text-transform: uppercase;">$2</span>');
-        html = html.replace(/<(smallcaps|sc)>(.*?)<\/\1>/gi, '<span style="font-variant: small-caps;">$2</span>');
-        return html;
+        return html.replace(/\n/g, '<br/>');
     }
 
     function update() {
