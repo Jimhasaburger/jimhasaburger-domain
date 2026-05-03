@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>build logic richtext</title> 
-    <!-- Keep your original stylesheet link -->
     <link rel="stylesheet" href="https://jimhasaburger.com/styles.css">
     <style>
-        /* FIX: Ensure the color spans are visible */
         .btn span {
             display: inline-block;
             width: 14px;
@@ -14,27 +12,28 @@
             vertical-align: middle;
         }
 
-        /* NEW: Preview box for custom color */
-        #customPreview {
+        .preview-box {
             width: 14px;
             height: 14px;
-            background: #00ff00;
             border: 1px solid #fff;
-            margin-right: 5px;
             display: inline-block;
             vertical-align: middle;
         }
 
-        /* Existing layout fixes from your CSS */
+        /* Toolbar layout */
+        #motd-toolbar { margin-bottom: 15px; }
+        
         body { margin: 0; font-family: Arial, sans-serif; background-color: #121212; color: #e0e0e0; }
         .container { padding: 20px; max-width: 1000px; margin: 0 auto; }
         .btn { background: DeepSkyBlue; color: white; border: none; padding: 8px 10px; margin: 5px 2px; cursor: pointer; }
-        #editor, #preview, #output { background-color: #1a1a1a; color: #ffffff; border: 1px solid #333; border-radius: 4px; padding: 12px; width: 100%; box-sizing: border-box; }
-        #output { font-family: monospace; min-height: 80px; }
-        .custom-picker-container { display: inline-flex; vertical-align: middle; }
-        .custom-btn-dropdown { width: 30px; position: relative; background: #444; display: flex; align-items: center; justify-content: center; }
-        #hexPicker { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
-        label { display: block; margin-top: 15px; font-weight: bold; }
+        #editor, #preview { background-color: #1a1a1a; color: #ffffff; border: 1px solid #333; border-radius: 4px; padding: 12px; width: 100%; box-sizing: border-box; }
+        
+        .custom-picker-container { display: inline-flex; vertical-align: middle; margin-right: 5px; }
+        .custom-btn-dropdown { width: 25px; position: relative; background: #444; display: flex; align-items: center; justify-content: center; padding: 0 !important; }
+        .hexPicker { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+        label { display: block; margin-top: 15px; font-weight: bold; margin-bottom: 5px; }
+        
+        .dropdown-arrow { font-size: 10px; color: #ccc; }
     </style>
 </head>
 <body>
@@ -50,72 +49,80 @@
         <button class="btn" data-tag="font color='#00AAAA'"><span style="background:#0AA"></span></button>
         <button class="btn" data-tag="font color='#AA0000'"><span style="background:#A00"></span></button>
         <button class="btn" data-tag="font color='#AA00AA'"><span style="background:#A0A"></span></button>
-        <button class="btn" data-tag="font color='#FFAA00'"><span style="background:#FA0"></span></button>
+        <button class="btn" data-tag="font color='#FFA000'"><span style="background:#FA0"></span></button>
         <button class="btn" data-tag="font color='#AAAAAA'"><span style="background:#AAA"></span></button>
         <button class="btn" data-tag="font color='#55FF55'"><span style="background:#5F5"></span></button>
         <button class="btn" data-tag="font color='#55FFFF'"><span style="background:#5FF"></span></button>
         <button class="btn" data-tag="font color='#FF5555'"><span style="background:#F55"></span></button>
         <button class="btn" data-tag="font color='#FFFFFF'"><span style="background:#FFF; border:1px solid #000"></span></button>
         
-        <!-- Updated Custom Split Button -->
+        <!-- Custom Font Color -->
         <div class="custom-picker-container">
-            <button class="btn custom-btn-main" id="applyCustom">
-                <span id="customPreview"></span> Custom
+            <button class="btn" id="applyCustomFont" title="Apply Custom Font Color">
+                <span id="fontPreview" class="preview-box" style="background: #00ff00;"></span>
             </button>
             <div class="btn custom-btn-dropdown">
-                <div class="dropdown-arrow">▼</div>
-                <input type="color" id="hexPicker" value="#00ff00">
+                <span class="dropdown-arrow">▼</span>
+                <input type="color" id="fontHex" class="hexPicker" value="#00ff00">
             </div>
         </div>
         
         <br>
-        <button class="btn" data-tag="b"><b>Bold</b></button>
-        <button class="btn" data-tag="u"><u>Underline</u></button>
-        <button class="btn" data-tag="i"><i>Italic</i></button>
-        <button class="btn" data-tag="s">Strike</button>
-        <button class="btn" data-tag="mark"><mark>Mark</mark></button>
+        <button class="btn" data-tag="b"><b>B</b></button>
+        <button class="btn" data-tag="u"><u>U</u></button>
+        <button class="btn" data-tag="i"><i>I</i></button>
+        <button class="btn" data-tag="s">S</button>
+        
+        <!-- Custom Mark Color -->
+        <div class="custom-picker-container">
+            <button class="btn" id="applyCustomMark" title="Apply Custom Mark">
+                <span id="markPreview" class="preview-box" style="background: #ffff00;"></span>
+            </button>
+            <div class="btn custom-btn-dropdown">
+                <span class="dropdown-arrow">▼</span>
+                <input type="color" id="markHex" class="hexPicker" value="#ffff00">
+            </div>
+        </div>
+
         <button class="btn" data-tag="stroke thickness='2' color='#000000'">Stroke</button>
-        <button class="btn" id="addBr">Break &lt;br/&gt;</button>
+        <button class="btn" id="addBr">Break</button>
         <button class="btn" id="clearTags" style="background: #ff4444;">Reset</button>
     </div>
 
-    <label>Input:</label>
-    <textarea id="editor" rows="6">isnt <font color="#00FF00">richtext</font> cool<mark>?</mark></textarea>
+    <label>Rich Text Input:</label>
+    <textarea id="editor" rows="6">isnt <font color="#00FF00">richtext</font> cool<mark color="#FFFF00">?</mark></textarea>
 
     <label>Preview:</label>
     <div id="preview" style="min-height:50px;"></div>
-
-    <label>Output (Copy this):</label>
-    <div id="output"></div>
 </div>
 
 <script>
     const editor = document.getElementById("editor");
     const preview = document.getElementById("preview");
-    const output = document.getElementById("output");
-    const hexPicker = document.getElementById("hexPicker");
-    const applyCustom = document.getElementById("applyCustom");
-    const customPreview = document.getElementById("customPreview");
+    
+    const fontHex = document.getElementById("fontHex");
+    const fontPreview = document.getElementById("fontPreview");
+    const applyCustomFont = document.getElementById("applyCustomFont");
 
-    // Palette logic
+    const markHex = document.getElementById("markHex");
+    const markPreview = document.getElementById("markPreview");
+    const applyCustomMark = document.getElementById("applyCustomMark");
+
+    // Standard Tags
     document.querySelectorAll("[data-tag]").forEach(btn => {
         btn.onclick = () => applyTag(btn.dataset.tag);
     });
 
-    // Custom Button Logic: Clicking the main "Custom" button applies the color
-    applyCustom.onclick = () => {
-        applyTag(`font color='${hexPicker.value.toUpperCase()}'`);
-    };
+    // Custom Font Logic
+    fontHex.oninput = () => fontPreview.style.background = fontHex.value;
+    applyCustomFont.onclick = () => applyTag(`font color='${fontHex.value.toUpperCase()}'`);
 
-    // Changing color in picker ONLY updates the small preview box
-    hexPicker.oninput = () => {
-        customPreview.style.background = hexPicker.value;
-    };
+    // Custom Mark Logic
+    markHex.oninput = () => markPreview.style.background = markHex.value;
+    applyCustomMark.onclick = () => applyTag(`mark color='${markHex.value.toUpperCase()}'`);
 
     document.getElementById("addBr").onclick = () => {
-        let start = editor.selectionStart;
-        let val = editor.value;
-        editor.value = val.slice(0, start) + "<br/>" + val.slice(start);
+        insertTextAtCursor("<br/>");
         update();
     };
 
@@ -127,6 +134,12 @@
         editor.value = val.slice(0, start) + `<${fullTag}>` + val.slice(start, end) + `</${tagName}>` + val.slice(end);
         editor.focus();
         update();
+    }
+
+    function insertTextAtCursor(text) {
+        let start = editor.selectionStart;
+        let val = editor.value;
+        editor.value = val.slice(0, start) + text + val.slice(start);
     }
 
     document.getElementById("clearTags").onclick = () => {
@@ -147,26 +160,27 @@
         });
         // Font
         html = html.replace(/<font\s+([^>]+)>(.*?)<\/font>/gi, (match, attrs, content) => {
-            const transMatch = attrs.match(/transparency=['"]([^'"]+)['"]/);
             const colorMatch = attrs.match(/color=['"]([^'"]+)['"]/);
+            const transMatch = attrs.match(/transparency=['"]([^'"]+)['"]/);
             let styles = [];
-            if (transMatch) styles.push(`opacity: ${1 - parseFloat(transMatch[1])}`);
             if (colorMatch) styles.push(`color: ${colorMatch[1]}`);
+            if (transMatch) styles.push(`opacity: ${1 - parseFloat(transMatch[1])}`);
             return `<span style="${styles.join('; ')}">${content}</span>`;
         });
-        // Caps
+        // Mark (Custom color support)
+        html = html.replace(/<mark\s*([^>]*)>(.*?)<\/mark>/gi, (match, attrs, content) => {
+            const colorMatch = attrs.match(/color=['"]([^'"]+)['"]/);
+            const color = colorMatch ? colorMatch[1] : "#ffff00";
+            return `<mark style="background-color: ${color}; color: #000;">${content}</mark>`;
+        });
+        
         html = html.replace(/<(uppercase|uc)>(.*?)<\/\1>/gi, '<span style="text-transform: uppercase;">$2</span>');
         html = html.replace(/<(smallcaps|sc)>(.*?)<\/\1>/gi, '<span style="font-variant: small-caps;">$2</span>');
         return html;
     }
 
     function update() {
-        let text = editor.value;
-        const openCount = (text.match(/<[^/!][^>]*>/g) || []).length;
-        const closeCount = (text.match(/<\/[^>]+>/g) || []).length;
-        output.style.borderLeft = (openCount !== closeCount) ? "5px solid #ff4444" : "1px solid #333";
-        preview.innerHTML = translateRobloxToHtml(text);
-        output.textContent = text;
+        preview.innerHTML = translateRobloxToHtml(editor.value);
     }
 
     editor.addEventListener("input", update);
