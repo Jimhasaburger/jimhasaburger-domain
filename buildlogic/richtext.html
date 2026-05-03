@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>build logic richtext </title> 
-    <!-- build logic is a roblox game. it supports richtext and many people ask me how i do it so i send them this website -->
     <link rel="stylesheet" href="https://jimhasaburger.com/styles.css">
     <style>
-        /* Essential styles to ensure the color picker looks like a button */
         .color-picker-wrapper {
             display: inline-block;
             position: relative;
             vertical-align: middle;
         }
-        .picker-btn { width: 40px; height: 30px; padding: 0; cursor: pointer; border: 1px solid #000; }
-        #preview mark { background-color: #009966; color: white; } /* Default Roblox mark style */
+        .picker-btn { width: 40px; height: 30px; cursor: pointer; }
+        #preview mark { background-color: #009966; color: white; }
     </style>
 </head>
 <body>
@@ -36,9 +34,8 @@
         <button class="btn" data-tag="font color='#FF5555'"><span style="background:#F55"></span></button>
         <button class="btn" data-tag="font color='#FFFFFF'"><span style="background:#FFF; border:1px solid #000"></span></button>
         
-        <!-- Custom Hex Picker -->
         <div class="color-picker-wrapper">
-            <input type="color" id="hexPicker" class="picker-btn" value="#ff0000">
+            <input type="color" id="hexPicker" class="picker-btn" value="#ff0000" title="Custom Color">
         </div>
         
         <br>
@@ -53,13 +50,14 @@
     </div>
 
     <label>input:</label>
-    <textarea id="editor" rows="6">Welcome to <stroke color="#ff0000" thickness="2">Roblox</stroke>! <br/>This is <mark>highlighted</mark>.</textarea>
+    <!-- Updated Default Text Here -->
+    <textarea id="editor" rows="6">isnt <font color="#00FF00">richtext</font> cool<mark>?</mark></textarea>
 
     <label>Preview:</label>
-    <div id="preview" style="padding:10px; border:1px solid #ccc; min-height:50px; background:#fff;"></div>
+    <div id="preview" style="padding:10px; border:1px solid #ccc; min-height:50px;"></div>
 
     <label>Output (Copy this):</label>
-    <div id="output" style="background:#eee; padding:10px; font-family:monospace;"></div>
+    <div id="output" style="padding:10px; font-family:monospace;"></div>
 </div>
 
 <script>
@@ -68,19 +66,14 @@
     const output = document.getElementById("output");
     const hexPicker = document.getElementById("hexPicker");
 
-    // Standard Tag Buttons
     document.querySelectorAll("[data-tag]").forEach(btn => {
-        btn.onclick = () => {
-            applyTag(btn.dataset.tag);
-        };
+        btn.onclick = () => { applyTag(btn.dataset.tag); };
     });
 
-    // Hex Picker Logic
     hexPicker.onchange = () => {
         applyTag(`font color='${hexPicker.value.toUpperCase()}'`);
     };
 
-    // Line Break Button
     document.getElementById("addBr").onclick = () => {
         let start = editor.selectionStart;
         let val = editor.value;
@@ -105,20 +98,15 @@
 
     function translateRobloxToHtml(text) {
         let html = text;
-
-        // 1. Handle <stroke> -> Convert to text-shadow
-        // Regex looks for color and thickness attributes
         html = html.replace(/<stroke\s+([^>]+)>(.*?)<\/stroke>/gi, (match, attrs, content) => {
             const colorMatch = attrs.match(/color=['"]([^'"]+)['"]/);
             const thickMatch = attrs.match(/thickness=['"]([^'"]+)['"]/);
             const color = colorMatch ? colorMatch[1] : "#000";
             const thick = thickMatch ? thickMatch[1] : "1";
-            // Simple text-shadow outline effect
             const shadow = `-${thick}px -${thick}px 0 ${color}, ${thick}px -${thick}px 0 ${color}, -${thick}px ${thick}px 0 ${color}, ${thick}px ${thick}px 0 ${color}`;
             return `<span style="text-shadow: ${shadow}">${content}</span>`;
         });
 
-        // 2. Handle <font transparency>
         html = html.replace(/<font\s+([^>]+)>(.*?)<\/font>/gi, (match, attrs, content) => {
             const transMatch = attrs.match(/transparency=['"]([^'"]+)['"]/);
             const colorMatch = attrs.match(/color=['"]([^'"]+)['"]/);
@@ -128,25 +116,17 @@
             return `<span style="${styles.join('; ')}">${content}</span>`;
         });
 
-        // 3. Handle <uppercase> and <smallcaps>
         html = html.replace(/<(uppercase|uc)>(.*?)<\/\1>/gi, '<span style="text-transform: uppercase;">$2</span>');
         html = html.replace(/<(smallcaps|sc)>(.*?)<\/\1>/gi, '<span style="font-variant: small-caps;">$2</span>');
-
         return html;
     }
 
     function update() {
         let text = editor.value;
-
-        // Validation
         const openCount = (text.match(/<[^/!][^>]*>/g) || []).length;
         const closeCount = (text.match(/<\/[^>]+>/g) || []).length;
-        output.style.color = (openCount !== closeCount) ? "red" : "black";
-
-        // Update Preview (Translated)
+        output.style.borderColor = (openCount !== closeCount) ? "red" : "#444";
         preview.innerHTML = translateRobloxToHtml(text);
-        
-        // Update Raw Output
         output.textContent = text;
     }
 
