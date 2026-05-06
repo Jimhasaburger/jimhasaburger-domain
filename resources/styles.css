@@ -183,11 +183,6 @@ header nav a:hover {
     border-right: 5px solid transparent;
     border-top: 5px solid white;
 }
-/* Layout Fixes */
-.container {
-    max-width: 1000px; /* Give it some breathing room */
-    margin: 0 auto;
-}
 
 /* Create a side-by-side layout for Input and Preview */
 .editor-row {
