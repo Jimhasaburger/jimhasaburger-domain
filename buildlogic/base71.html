@@ -6,8 +6,15 @@
 <link rel="stylesheet" href="/resources/style.css">
 </head>
 <body>
+      <div id="header-placeholder"></div>
+    <script>
+        fetch('/resources/blheader.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('header-placeholder').innerHTML = data;
+        });
+    </script>
 <h1>Base71 Encoder/Decoder</h1>
-
 <label>Number to encode:</label>
 <input type="number" id="base71Number">
 <button onclick="encodeBase71()">Encode</button>
