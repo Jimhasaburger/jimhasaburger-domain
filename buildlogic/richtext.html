@@ -148,7 +148,14 @@
     </style>
 </head>
 <body>
-
+<div id="header-placeholder"></div>
+<script>
+    fetch('/resources/blheader.html')
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById('header-placeholder').innerHTML = data;
+    });
+ </script>
 <div class="container">
     <h1>build logic richtext</h1>
 
