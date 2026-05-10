@@ -1,1 +1,24 @@
-https://jimhasaburger.com/buildlogic/richtext
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build Logic!</title>
+      <meta property="og:title" content="other stuff">
+      <meta property="og:description" content="other stuff">
+      <meta property="og:type" content="website">
+    <!-- Link to external CSS -->
+    <link rel="stylesheet" href="resources/styles.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+    </div>
+    <script>
+        fetch('resources/blheader.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('header-placeholder').innerHTML = data;
+        });
+    </script>
+</body>
+</html>
