@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Base71 Encoder/Decoder</title>
+<link rel="stylesheet" href="/resources/style.css">
+</head>
+<body>
+<h1>Base71 Encoder/Decoder</h1>
+
+<label>Number to encode:</label>
+<input type="number" id="base71Number">
+<button onclick="encodeBase71()">Encode</button>
+<p>Result: <span id="base71Encoded"></span></p>
+
+<label>String to decode:</label>
+<input type="text" id="base71String">
+<button onclick="decodeBase71()">Decode</button>
+<p>Result: <span id="base71Decoded"></span></p>
+
+<script src="/buildlogic/scripts/base71.js"></script>
+</body>
+</html>
