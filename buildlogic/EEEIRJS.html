@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BuildLogic Image Loader</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 700px; margin: auto; background-color: #121212; color: #e0e0e0; }
+        h1 { margin-bottom: 20px; color: #ffffff; text-align: center; }
+        .row { margin-bottom: 10px; display: flex; gap: 10px; align-items: center; }
+        textarea { width: 100%; margin-top: 10px; resize: vertical; font-family: monospace; color: #4caf50; background: #1e1e1e; border: 1px solid #333; padding: 10px; }
+        button { background-color: #4caf50; color: white; border: none; padding: 12px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; margin: 10px 0; }
+        canvas { display: none; }
+        label { cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<h1>BuildLogic Image Loader</h1>
+
+<div class="row">
+    <input type="file" id="imageInput" accept="image/*">
+</div>
+<div class="row">
+    <label><input type="checkbox" id="useBeams" checked> use beams</label>
+</div>
+
+<button id="copyBtn">Copy Savestring</button>
+<textarea id="output" rows="15" placeholder="Savestring will appear here..."></textarea>
+
+<canvas id="canvas"></canvas>
+
+<!-- encoder.js must be in the same folder -->
+<script src="scripts/encoder.js"></script>
+
+<script>
+const GRID_SIZE = 256;
+
+document.getElementById("imageInput").addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+
+            const canvas = document.getElementById("canvas");
+            const ctx = canvas.getContext("2d");
+
+            let scale = Math.min(GRID_SIZE / img.width, GRID_SIZE / img.height);
+            canvas.width = Math.floor(img.width * scale);
+            canvas.height = Math.floor(img.height * scale);
+
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+            const pixelMap = new Map();
+            const key = (x, y) => x + "," + y;
+
+            const W = canvas.width;
+            const H = canvas.height;
+
+            // Build pixel map
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const idx = (y * W + x) * 4;
+                    if (imgData[idx + 3] > 120) {
+                        pixelMap.set(key(x, y), [
+                            imgData[idx],
+                            imgData[idx + 1],
+                            imgData[idx + 2]
+                        ]);
+                    }
+                }
+            }
+
+            const useBeams = document.getElementById("useBeams").checked;
+
+            const beamCover = new Set();   // image-space coverage
+            const beams = [];
+
+            // -----------------------------
+            // HORIZONTAL BEAMS
+            // -----------------------------
+            if (useBeams) {
+                for (let y = 0; y < H; y++) {
+                    let x = 0;
+                    while (x < W) {
+                        const k = key(x, y);
+                        if (!pixelMap.has(k) || beamCover.has(k)) {
+                            x++;
+                            continue;
+                        }
+
+                        const color = pixelMap.get(k);
+                        let len = 1;
+
+                        while (x + len < W) {
+                            const nk = key(x + len, y);
+                            if (!pixelMap.has(nk) || beamCover.has(nk)) break;
+                            const c = pixelMap.get(nk);
+                            if (c[0] !== color[0] || c[1] !== color[1] || c[2] !== color[2]) break;
+                            len++;
+                            if (len >= 8) break;
+                        }
+
+                        if (len >= 2) {
+                            const worldX = x;
+                            const worldY = (H - 1) - y;
+
+                            beams.push({
+                                x: worldX,
+                                y: worldY,
+                                color,
+                                len,
+                                dir: "PLUS_X",
+                                yImage: y
+                            });
+
+                            for (let i = 0; i < len; i++) {
+                                beamCover.add(key(x + i, y));
+                            }
+
+                            x += len;
+                        } else {
+                            x++;
+                        }
+                    }
+                }
+
+                // -----------------------------
+                // VERTICAL BEAMS
+                // -----------------------------
+                for (let x = 0; x < W; x++) {
+                    let y = 0;
+                    while (y < H) {
+                        const k = key(x, y);
+                        if (!pixelMap.has(k) || beamCover.has(k)) {
+                            y++;
+                            continue;
+                        }
+
+                        const color = pixelMap.get(k);
+                        let len = 1;
+
+                        while (y + len < H) {
+                            const nk = key(x, y + len);
+                            if (!pixelMap.has(nk) || beamCover.has(nk)) break;
+                            const c = pixelMap.get(nk);
+                            if (c[0] !== color[0] || c[1] !== color[1] || c[2] !== color[2]) break;
+                            len++;
+                            if (len >= 8) break;
+                        }
+
+                        if (len >= 2) {
+                            const bottomY = y + (len - 1);
+                            const worldX = x;
+                            const worldY = (H - 1) - bottomY;
+
+                            beams.push({
+                                x: worldX,
+                                y: worldY,
+                                color,
+                                len,
+                                dir: "PLUS_Y",
+                                yImage: y
+                            });
+
+                            for (let i = 0; i < len; i++) {
+                                beamCover.add(key(x, y + i));
+                            }
+
+                            y += len;
+                        } else {
+                            y++;
+                        }
+                    }
+                }
+            }
+
+            // -----------------------------
+            // BUILD FINAL BLOCK LIST
+            // -----------------------------
+            const finalBlocks = [];
+
+            // Add beams
+            for (const b of beams) {
+                finalBlocks.push({
+                    x: b.x,
+                    y: b.y,
+                    color: b.color,
+                    beamLen: b.len,
+                    dir: b.dir
+                });
+            }
+
+            // Add G blocks for uncovered pixels
+            for (let y = 0; y < H; y++) {
+                for (let x = 0; x < W; x++) {
+                    const k = key(x, y);
+                    if (!pixelMap.has(k)) continue;
+                    if (beamCover.has(k)) continue;
+
+                    finalBlocks.push({
+                        x,
+                        y: (H - 1) - y,
+                        color: pixelMap.get(k),
+                        beamLen: null,
+                        dir: "PLUS_X"
+                    });
+                }
+            }
+            const saveString = finalBlocks.map(b => {
+                if (b.beamLen) {
+                    return Encoder.encodeBeam(
+                        b.beamLen,
+                        b.x, b.y, 0,
+                        b.color,
+                        "1",
+                        b.dir
+                    );
+                }
+                return Encoder.encodeBlock("G", b.x, b.y, 0, b.color, "1");
+            }).join(";");
+
+            document.getElementById("output").value = saveString;
+        };
+
+        img.src = e.target.result;
+    };
+
+    reader.readAsDataURL(file);
+});
+
+document.getElementById("copyBtn").addEventListener("click", () => {
+    const out = document.getElementById("output");
+    out.select();
+    document.execCommand("copy");
+    alert("Copied!");
+});
+</script>
+
+</body>
+</html>
