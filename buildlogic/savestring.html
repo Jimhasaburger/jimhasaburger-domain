@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Build Logic Terrain Generator 5.1</title>
+<link rel="stylesheet" href="/resources/styles.css">
+</head>
+<body>
+
+<h1>Build Logic Terrain Generator 5.1</h1>
+<div class="row">
+    <label>Preset Defaults:</label>
+    <select id="presetSelect" onchange="applyPreset(this.value)">
+        <option value="">-- Select Preset --</option>
+        <option value="performance">Performance</option>
+        <option value="size">Size</option>
+        <option value="brick">Brick PC</option>
+    </select>
+</div>
+
+<div class="row">
+    <label>seed:</label>
+    <input type="number" id="seedInput" value="0">
+</div>
+
+<div class="row">
+    <label>Width (X):</label>
+    <input type="number" id="width" value="128">
+</div>
+
+<div class="row">
+    <label>Height (Y):</label>
+    <input type="number" id="height" value="64">
+</div>
+
+<div class="row">
+    <label>Depth (Z):</label>
+    <input type="number" id="depth" value="128">
+</div>
+
+<div class="row">
+    <label><input type="checkbox" id="hollowToggle" checked> Hollow Terrain (less lag)</label>
+</div>
+
+<div class="row">
+    <label><input type="checkbox" id="colorToggle" checked> Use Colors</label>
+</div>
+
+<div class="row">
+    <label><input type="checkbox" id="materialToggle"> Use Materials</label>
+</div>
+
+<div class="row">
+    <label><input type="checkbox" id="beamToggle" checked> Use Beams (less lag)</label>
+</div>
+<div class="row">
+    <label><input type="checkbox" id="caveToggle" checked> generate caves</label>
+</div>
+
+<div class="row">
+    <button onclick="generateTerrain()">Generate Terrain</button>
+    <button onclick="downloadSaveString()">Download Save String</button>
+</div>
+
+<label>Output Save String:</label>
+<textarea id="saveStringOutput" rows="8"></textarea>
+  
+<script src="/buildlogic/scripts/encoder.js"></script>
+<script src="/buildlogic/scripts/generator.js"></script>
+<script>
+function applyPreset(preset){
+    const wInput = document.getElementById("width");
+    const hInput = document.getElementById("height");
+    const dInput = document.getElementById("depth");
+    const hollow = document.getElementById("hollowToggle");
+    const color = document.getElementById("colorToggle");
+    const material = document.getElementById("materialToggle");
+    const beam = document.getElementById("beamToggle");
+
+    switch(preset){
+        case "performance":
+            wInput.value = 128;
+            hInput.value = 64;
+            dInput.value = 128;
+            hollow.checked = true;       // Hollow ON = less lag
+            color.checked = true;
+            material.checked = false;
+            beam.checked = true;
+            break;
+        case "size":
+            wInput.value = 256;
+            hInput.value = 128;
+            dInput.value = 256;
+            hollow.checked = true;
+            color.checked = true;
+            material.checked = true;
+            beam.checked = true;
+            break;
+        case "brick":
+            wInput.value = 256;
+            hInput.value = 256;
+            dInput.value = 256;
+            hollow.checked = false;
+            color.checked = true;
+            material.checked = true;
+            beam.checked = false;
+            break;
+        default: break;
+    }
+}
+</script>
+
+</body>
+</html>
