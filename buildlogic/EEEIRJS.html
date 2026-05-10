@@ -14,7 +14,14 @@
     </style>
 </head>
 <body>
-
+    <div id="header-placeholder"></div>
+    <script>
+        fetch('/resources/blheader.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('header-placeholder').innerHTML = data;
+        });
+    </script>
 <h1>BuildLogic Image Loader</h1>
 
 <div class="row">
