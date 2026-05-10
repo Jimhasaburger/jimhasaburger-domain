@@ -6,7 +6,14 @@
 <link rel="stylesheet" href="/resources/styles.css">
 </head>
 <body>
-
+    <div id="header-placeholder"></div>
+    <script>
+        fetch('/resources/blheader.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('header-placeholder').innerHTML = data;
+        });
+    </script>
 <h1>Build Logic Terrain Generator 5.1</h1>
 <div class="row">
     <label>Preset Defaults:</label>
