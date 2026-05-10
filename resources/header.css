@@ -1,0 +1,51 @@
+/* Header Layout */
+header {
+    width: 100%;
+    background-color: #1e1e1e;
+    padding: 20px;
+    border-bottom: 2px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 28px;
+    color: #ffffff;
+}
+
+/* Header Navigation Links */
+header nav a {
+    white-space: nowrap;
+    color: DeepSkyBlue;
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+header nav a:hover {
+    text-decoration: underline;
+}
+
+/* Mobile Responsive Header */
+@media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px;
+    }
+
+    header nav {
+        margin-top: 15px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    header nav a {
+        margin-left: 0;
+        font-size: 16px;
+    }
+}
