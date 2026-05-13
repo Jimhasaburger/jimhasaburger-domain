@@ -1,1 +1,33 @@
-asdasdasd
+<header>
+  <link rel="stylesheet" href="https://unpkg.com/7.css">
+  <link rel="stylesheet" href="/resources/header.css">
+  <h1>Mint's website</h1>
+  <section class="tabs">
+    <menu role="tablist" aria-label="Window Tabs" id="nav-tabs">
+      <a href="/" role="tab">Home</a>
+      <a href="/names" role="tab">List of Names</a>
+      <a href="/links" role="tab">Links</a>
+      <a href="/other" role="tab">Other Things</a>
+    </menu>
+    
+    <article role="tabpanel" class="tab-window">
+      <div class="window-body">
+        </div>
+    </article>
+  </section>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const currentPath = window.location.pathname;
+      const tabs = document.querySelectorAll('#nav-tabs [role="tab"]');
+      
+      tabs.forEach(tab => {
+        if (tab.getAttribute('href') === currentPath) {
+          tab.setAttribute('aria-selected', 'true');
+        } else {
+          tab.setAttribute('aria-selected', 'false');
+        }
+      });
+    });
+  </script>
+</header>
