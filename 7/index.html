@@ -1,1 +1,28 @@
-come back later
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mint's website</title>
+    <!-- discord embed -->
+      <meta property="og:title" content="Mint's Website">
+      <meta property="og:description" content="I bought a domain! this is my website.">
+      <meta property="og:type" content="website">
+    <!-- Link to external CSS -->
+    <link rel="stylesheet" href="resources/styles.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+    <div class="container">
+        <h1>Welcome!</h1>
+        <p>I bought a domain!</p>
+    </div>
+    <script>
+        fetch('resources/header.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('header-placeholder').innerHTML = data;
+        });
+    </script>
+</body>
+</html>
