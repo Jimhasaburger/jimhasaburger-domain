@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>the list of names</title>
+      <meta property="og:title" content="The name list">
+      <meta property="og:description" content="list of names. dm me for free shoutout here.">
+      <meta property="og:type" content="website">
+      <link rel="stylesheet" href="resources/styles.css">
+      <style>
+         .name-list p img.avatar { cursor: pointer; object-fit: cover; }
+         #avatarModal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.85); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+         #avatarModal.hidden { display: none !important; }
+         #enlargedAvatar { max-width: 90%; max-height: 80%; border-radius: 12px; }
+         #closeModal { position: absolute; top: 20px; right: 20px; background: none; border: none; color: white; font-size: 30px; cursor: pointer; }
+      </style>
+   </head>
+   <body>
+      <div id="header-placeholder"></div>
+      
+      <div class="container">
+         <h1>The list of names</h1>
+         <div class="name-list" id="automated-name-list">
+            <p style="color: #9ca3af; font-style: italic;">Loading list parameters...</p>
+         </div>
+      </div>
+
+      <div id="avatarModal" class="hidden">
+         <button id="closeModal">&times;</button>
+         <img id="enlargedAvatar" src="" alt="Enlarged Avatar">
+      </div>
+
+      <script>
+      const shoutoutUsers = [
+         { id: "1386822974518198272", fallbackName: "idioticapple" },
+         { id: "847141767567638598",  fallbackName: "The_TommYT" },
+         { id: "1105495074231566428", fallbackName: "C:\\" },
+         { id: "1255650504097271871", fallbackName: "Kacper" },
+         { id: "721709992872378430",  fallbackName: "GaLaxy3Y5" },
+         { id: "1395348772145467422", fallbackName: "ego" },
+         { id: "1075486744956387459", fallbackName: "JGamongus" },
+         { id: "777560384747077643",  fallbackName: "Dyno" },
+         { id: "1162433975218880554", fallbackName: "𝖝𝖞𝖟𝖇𝖑𝖚𝖟𝖎𝖊" },
+         { id: "1195066203408969838", fallbackName: "𝓬𝓱𝓪𝓻.𝓸𝓯𝓯𝓲𝓬𝓲𝓪𝓵" },
+         { id: "1139568990943985694", fallbackName: "𝕿𝖍𝖊𝕽𝖊𝖆𝖑𝕯𝖊𝖛" },
+         { id: "1446865370727186564", fallbackName: "bery" }
+      ];
+
+      document.addEventListener('DOMContentLoaded', () => {
+         const autoListContainer = document.getElementById('automated-name-list');
+         const avatarModal = document.getElementById('avatarModal');
+         const enlargedAvatar = document.getElementById('enlargedAvatar');
+
+         const getAvatarUrl = (id, avatar, disc, size = 512) => avatar 
+            ? `https://cdn.discordapp.com/avatars/${id}/${avatar}.${avatar.startsWith('a_') ? 'gif' : 'png'}?size=${size}`
+            : `https://cdn.discordapp.com/embed/avatars/${disc ? disc % 5 : id % 5}.png?size=${size}`;
+
+         async function loadProfiles() {
+            let htmlContent = "";
+            for (const item of shoutoutUsers) {
+               try {
+                  const res = await fetch(`https://gatecord.com/wp-json/discord/profile/${item.id}`);
+                  if (!res.ok) throw new Error();
+                  const data = await res.json();
+                  
+                  const displayHandle = (data.discriminator && data.discriminator !== '0') ? `${data.username}#${data.discriminator}` : data.username;
+                  const displayName = data.global_name || item.fallbackName;
+
+                  htmlContent += `
+                     <p>
+                        <img src="${getAvatarUrl(data.id, data.avatar, data.discriminator)}" class="avatar" alt="${displayName}'s Avatar" data-large="${getAvatarUrl(data.id, data.avatar, data.discriminator, 1024)}">
+                        <span class="name">${displayName}</span>
+                        <span class="handle">(@${displayHandle} on discord)</span>
+                     </p>`;
+               } catch {
+                  htmlContent += `
+                     <p>
+                        <img src="https://cdn.discordapp.com/embed/avatars/${parseInt(item.id) % 5}.png?size=512" class="avatar" alt="${item.fallbackName}'s Avatar">
+                        <span class="name">${item.fallbackName}</span>
+                        <span class="handle">(ID: ${item.id})</span>
+                     </p>`;
+               }
+            }
+            autoListContainer.innerHTML = htmlContent;
+         }
+
+         autoListContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('avatar')) {
+               enlargedAvatar.src = e.target.getAttribute('data-large') || e.target.src;
+               avatarModal.classList.remove('hidden');
+               document.body.style.overflow = 'hidden';
+            }
+         });
+
+         const closeModal = () => {
+            avatarModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+         };
+
+         avatarModal.addEventListener('click', (e) => { if (e.target.id === 'avatarModal' || e.target.id === 'closeModal') closeModal(); });
+         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+         loadProfiles();
+      });
+
+      fetch('resources/header.html')
+         .then(res => res.text())
+         .then(data => document.getElementById('header-placeholder').innerHTML = data);
+      </script>
+   </body>
+</html>
