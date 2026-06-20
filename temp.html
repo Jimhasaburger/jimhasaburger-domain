@@ -33,18 +33,9 @@ button {
     color: white;
     border-radius: 4px;
 }
-
-pre {
-    background: #1a1d25;
-    padding: 10px;
-    white-space: pre-wrap;
-    word-break: break-word;
-}
 </style>
 </head>
-
 <body>
-
 <h3>JSON</h3>
 <textarea id="blockInput">{
   "id": "stone",
@@ -57,18 +48,10 @@ pre {
 
 <button onclick="uiEncodeBlock()">Encode</button>
 
-<pre id="blockOut"></pre>
-
-<hr>
-
 <h3>Save String</h3>
 <textarea id="saveInput"></textarea>
 
 <button onclick="uiDecodeSave()">Decode</button>
-
-<pre id="saveOut"></pre>
-
-<script>
 /* =========================
    BASE71
 ========================= */
