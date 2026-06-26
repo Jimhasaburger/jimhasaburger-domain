@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Decode</title>
+    <link rel="stylesheet" href="/resources/styles.css">
+</head>
+<body>
+    <div id="header-placeholder"></div>
+    <script>
+        fetch('/resources/blheader.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('header-placeholder').innerHTML = data;
+        });
+    </script>
+
+    <h1>Decode</h1>
+
+    <form id="decoderform">
+        <label for="blockType">block:</label>
+        <select id="blockType">
+            <option value="speaker">Speaker</option>
+            <option value="keypad">Keypad</option>
+            <option value="legacykeypad">Legacy Keypad</option>
+        </select>
+        <br><br>
+        
+        <label for="blockValue">Encoded Value:</label>
+        <input type="text" id="blockValue" required>
+        <br><br>
+        
+        <button type="submit">Decode</button>
+    </form>
+
+    <h3>Result:</h3>
+    <pre id="output"></pre>
+
+    <script src="/buildlogic/scripts/decode.js"></script>
+</body>
+</html>
