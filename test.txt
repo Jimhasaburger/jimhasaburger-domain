@@ -1,0 +1,50 @@
+import os
+import numpy as np
+from scipy.io import wavfile
+from PIL import Image, ImageDraw, ImageFont
+
+FMIN,FMAX,SR=500,7500,44100
+FONT="font.ttf"
+
+def font(size):
+    return ImageFont.truetype(FONT,size)
+
+def mask_char(c,w,h):
+    f=font(96)
+    x=Image.new("L",(1,1))
+    b=ImageDraw.Draw(x).textbbox((0,0),c,font=f)
+    W,H=b[2]-b[0],b[3]-b[1]
+    x=Image.new("L",(W+96,H+96))
+    ImageDraw.Draw(x).text((48-b[0],48-b[1]),c,255,font=f)
+    x=x.crop(x.getbbox())
+    s=h/x.height
+    x=x.resize((max(1,int(x.width*s)),h))
+    p=Image.new("L",(w,x.height))
+    p.paste(x,((w-x.width)//2,0))
+    a=np.array(p)/255
+    return (a**.1>.05).astype(float)
+
+def waterfall(text):
+    cols=500
+    rows=round(cols*1.5)
+    rt=1/rows
+    pages=[mask_char(c,cols,rows) for c in text]
+    gap=np.zeros((max(1,round(.4/rt)),cols))
+    return np.ascontiguousarray(
+        np.vstack(sum(([p,gap] for p in pages[:-1]),[])+[pages[-1]])[::-1]),rt
+
+def make_wav(text,path):
+    m,rt=waterfall(text)
+    n=int(rt*SR)
+    freqs=np.linspace(FMIN,FMAX,m.shape[1])
+    audio=np.zeros(m.shape[0]*n)
+
+    for r,row in enumerate(m):
+        ids=np.where(row>.01)[0]
+        for c in ids:
+            t=np.arange(r*n,min((r+1)*n,len(audio)))/SR
+            audio[r*n:(r+1)*n]+=row[c]*np.sin(2*np.pi*freqs[c]*t+np.random.rand()*6.28)
+        if len(ids): audio[r*n:(r+1)*n]/=np.sqrt(len(ids))
+
+    audio/=max(np.max(abs(audio)),1)
+    wavfile.write(path,SR,(audio*32767).astype(np.int16))
