@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <label for="inputText">Input Text:</label><br>
+    <textarea id="inputText" rows="6" cols="60" placeholder="Enter text here..."></textarea>
+    <label for="operation">Select</label>
+    <select id="operation">
+        <option value="shift">Shift Cipher</option>
+        <option value="b64encode">Base64 Encode</option>
+        <option value="b64decode">Base64 Decode</option>
+        <option value="urlencode">URL Encode</option>
+        <option value="urldecode">URL Decode</option>
+    </select>
+    <button onclick="transformText()">Process</button>
+    <div id="output"></div>
+    <script>
+        function caesarShift(text, shift) {
+            return text.replace(/[a-zA-Z]/g, function(char) {
+                const code = char.charCodeAt(0);
+                const isUpperCase = code >= 65 && code <= 90;
+                const base = isUpperCase ? 65 : 97;
+                return String.fromCharCode(((code - base + shift) % 26 + 26) % 26 + base);
+            });
+        }
+        function transformText() {
+            const input = document.getElementById("inputText").value;
+            const operation = document.getElementById("operation").value;
+            const outputDiv = document.getElementById("output");
+
+            outputDiv.innerHTML = ""; // Clear previous output
+
+            if (!input) {
+                outputDiv.textContent = "Please enter some text to transform.";
+                return;
+            }
+
+            try {
+                if (operation === "shift") {
+                    // Generate all 25 shift possibilities
+                    let html = "<ul>";
+                    for (let shift = 1; shift <= 25; shift++) {
+                        const shiftedText = caesarShift(input, shift);
+                        html += `<li><strong>Shift ${shift}:</strong> ${escapeHtml(shiftedText)}</li>`;
+                    }
+                    html += "</ul>";
+                    outputDiv.innerHTML = html;
+                } else if (operation === "b64encode") {
+                    outputDiv.textContent = btoa(unescape(encodeURIComponent(input)));
+                } else if (operation === "b64decode") {
+                    outputDiv.textContent = decodeURIComponent(escape(atob(input)));
+                } else if (operation === "urlencode") {
+                    outputDiv.textContent = encodeURIComponent(input);
+                } else if (operation === "urldecode") {
+                    outputDiv.textContent = decodeURIComponent(input);
+                }
+            } catch (err) {
+                outputDiv.textContent = "Error processing text: " + err.message;
+            }
+        }
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;")
+                      .replace(/</g, "&lt;")
+                      .replace(/>/g, "&gt;")
+                      .replace(/"/g, "&quot;")
+                      .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
