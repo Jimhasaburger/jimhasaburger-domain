@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>syntax richtext thing</title>
+    <link rel="stylesheet" href="/resources/codemirror/lib/codemirror.css">
+    <style>
+        html { color-scheme: dark; }
+
+        /* Global Unround */
+        * { border-radius: 0 !important; box-sizing: border-box; }
+
+        body { margin: 0; font-family: Arial, sans-serif; background-color: #121212; color: #e0e0e0; }
+        .container { padding: 20px; max-width: 1000px; margin: 0 auto; }
+
+        h1 { color: #ffffff; margin-bottom: 20px; }
+
+        /* Base Button Style */
+        .btn {
+            background: DeepSkyBlue;
+            color: white;
+            border: none;
+            padding: 0 15px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 36px;
+            font-size: 14px;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+        .btn:hover { background: #00bfff; }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #ffffff;
+            font-size: 14px;
+        }
+        .label-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .label-row label { margin-bottom: 0; }
+        #copyBtn { height: 26px; font-size: 12px; padding: 0 12px; }
+
+        /* CodeMirror editor, GitHub Dark */
+        #editor, #output, .notice { width: 100%; }
+        #editor { margin-bottom: 20px; }
+        .CodeMirror {
+            width: 100%;
+            height: 320px;
+            background: #0d1117;
+            color: #e6edf3;
+            border: 1px solid #333333;
+            font-family: Consolas, 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .CodeMirror-focused { border-color: DeepSkyBlue; }
+        .CodeMirror-gutters { background: #0d1117; border-right: 1px solid #30363d; }
+        .CodeMirror-linenumber { color: #484f58; }
+        .CodeMirror-cursor { border-left: 2px solid #e6edf3; }
+        .CodeMirror-selected { background: #264f78; }
+        .CodeMirror-activeline-background { background: #161b22; }
+        .CodeMirror-matchingbracket { color: #7ee787 !important; text-decoration: underline; }
+        .cm-s-default .cm-keyword { color: #ff7b72; }
+        .cm-s-default .cm-atom,
+        .cm-s-default .cm-number { color: #79c0ff; }
+        .cm-s-default .cm-def { color: #d2a8ff; }
+        .cm-s-default .cm-variable { color: #e6edf3; }
+        .cm-s-default .cm-variable-2,
+        .cm-s-default .cm-variable-3 { color: #79c0ff; }
+        .cm-s-default .cm-property { color: #79c0ff; }
+        .cm-s-default .cm-builtin { color: #79c0ff; }
+        .cm-s-default .cm-type,
+        .cm-s-default .cm-qualifier { color: #ffa657; }
+        .cm-s-default .cm-string { color: #a5d6ff; }
+        .cm-s-default .cm-comment { color: #8b949e; }
+        .cm-s-default .cm-operator { color: #ff7b72; }
+        .cm-s-default .cm-meta { color: #8b949e; }
+        .cm-s-default .cm-tag { color: #ff7b72; }
+        .cm-s-default .cm-attribute { color: #ffa657; }
+        .cm-s-default .cm-bracket { color: #8b949e; }
+        .cm-s-default .cm-header { color: #79c0ff; }
+        .cm-s-default .cm-quote { color: #8b949e; }
+        .cm-s-default .cm-hr { color: #8b949e; }
+        .cm-s-default .cm-link { color: #a5d6ff; }
+
+        #output {
+            background-color: #1a1a1a;
+            color: #9cdcfe;
+            border: 1px solid #333;
+            padding: 15px;
+            width: 100%;
+            font-size: 14px;
+            font-family: Consolas, 'Courier New', monospace;
+            margin-bottom: 20px;
+            resize: vertical;
+            outline: none;
+        }
+        #output:focus { border-color: DeepSkyBlue; }
+
+        .notice {
+            border: 1px solid #aa8800;
+            background: #2a2100;
+            color: #ffd98a;
+            padding: 10px 14px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+<div id="header-placeholder"></div>
+<script>
+    fetch('/resources/blheader.html')
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById('header-placeholder').innerHTML = data;
+    });
+</script>
+<div class="container">
+    <h1>syntax richtext thing</h1>
+
+    <label>Code:</label>
+    <div id="editor"></div>
+
+    <div class="label-row">
+        <label>Output:</label>
+        <button id="copyBtn" class="btn" type="button">Copy</button>
+    </div>
+    <textarea id="output" rows="6" readonly spellcheck="false"></textarea>
+
+    <div class="notice">
+        ⚠ <b>Roblox might censor this.</b> Roblox's text filter can turn some words into ###.
+    </div>
+</div>
+
+<script src="/resources/highlight.min.js"></script>
+<script src="/resources/codemirror/lib/codemirror.js"></script>
+<script src="/resources/codemirror/mode/lua/lua.js"></script>
+<script src="/resources/codemirror/mode/javascript/javascript.js"></script>
+<script src="/resources/codemirror/mode/python/python.js"></script>
+<script>
+/*__CORE_START__*/
+// ===== pure logic (no DOM) - kept separate so it can be tested in node =====
+
+// Fixed output style: GitHub Dark, always rendered without a background.
+const THEME = {
+    id: "githubdark",
+    name: "GitHub Dark",
+    c: { plain:"#E6EDF3", comment:"#8B949E", string:"#A5D6FF", number:"#79C0FF", keyword:"#FF7B72", builtin:"#79C0FF", func:"#D2A8FF", type:"#FFA657" }
+};
+
+// highlight.js (loaded from /resources/highlight.min.js above) does the actual tokenizing.
+// Language is always auto-detected; these only bound the detection pool.
+const AUTO_POOL = ["lua", "javascript", "json", "python"];
+
+function resolveHljsLang(key) {
+    const HLJS_LANGS = { lua: "lua", js: "javascript", json: "json", python: "python" };
+    const want = HLJS_LANGS[key];
+    if (want && typeof hljs !== "undefined" && hljs.getLanguage(want)) return want;
+    return "plaintext";
+}
+
+// hljs class -> our color key (checked in order)
+const HLJS_MAP = [
+    [/(^|\s)(hljs-comment|hljs-quote)($|\s)/, "comment"],
+    [/(^|\s)(hljs-string|hljs-regexp|hljs-meta-string|hljs-link|hljs-char\.escape_?)($|\s)/, "string"],
+    [/(^|\s)(hljs-number)($|\s)/, "number"],
+    [/(^|\s)(hljs-literal)($|\s)/, "keyword"],
+    [/(^|\s)(hljs-keyword|hljs-selector-tag|hljs-doctag|hljs-name)($|\s)/, "keyword"],
+    [/(^|\s)(hljs-built_in|hljs-built-in)($|\s)/, "builtin"],
+    [/(^|\s)(hljs-type|hljs-class)($|\s)/, "type"],
+    [/(^|\s)(hljs-attr|hljs-attribute|hljs-property)($|\s)/, "type"],
+    [/(^|\s)(hljs-title|hljs-function|hljs-selector-class|hljs-selector-id|hljs-section)($|\s)/, "func"],
+    [/hljs-/, "plain"]
+];
+
+function classToKey(cls) {
+    const has = c => cls.split(/\s+/).includes(c);
+    // modifiers come as separate classes: "hljs-title function_" / "hljs-title class_"
+    if (has("class_") && (has("hljs-title") || has("hljs-type"))) return "type";
+    if (has("function_") && has("hljs-title")) return "func";
+    for (const entry of HLJS_MAP) {
+        if (entry[0].test(cls)) return entry[1];
+    }
+    return "plain";
+}
+
+const ENTITIES = {
+    "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": "\"",
+    "&apos;": "'", "&#x27;": "'", "&#39;": "'", "&nbsp;": " "
+};
+
+function decodeEntities(s) {
+    return s.replace(/&(?:amp|lt|gt|quot|apos|#x27|#39|nbsp);/g, m => ENTITIES[m]);
+}
+
+// Walk highlight.js' html output into {type, text} tokens (newlines kept)
+// so they can be assembled into roblox richtext.
+function hljsToTokens(html) {
+    const toks = [];
+    const stack = ["plain"];
+    const parts = html.split(/(<span class="[^"]*">|<\/span>)/);
+    for (const p of parts) {
+        if (!p) continue;
+        if (p.startsWith('<span class="')) {
+            stack.push(classToKey(p.slice('<span class="'.length, p.lastIndexOf('">'))));
+        } else if (p === "</span>") {
+            if (stack.length > 1) stack.pop();
+        } else {
+            toks.push({ t: stack[stack.length - 1], s: decodeEntities(p) });
+        }
+    }
+    return toks;
+}
+
+function normalizeCode(code) {
+    return code
+        .replace(/\r\n?/g, "\n")
+        .replace(/<br\s*\/?>/gi, "\n")
+        .replace(/\t/g, "    ");
+}
+
+// Build roblox richtext from code
+function buildResult(code, langKey, theme, bgOn, bgHex) {
+    const norm = normalizeCode(code);
+    let toks = [];
+    let usedLang = "";
+    if (norm && langKey !== "plain" && typeof hljs !== "undefined") {
+        try {
+            const res = langKey === "auto"
+                ? hljs.highlightAuto(norm, AUTO_POOL)
+                : hljs.highlight(norm, { language: resolveHljsLang(langKey), ignoreIllegals: true });
+            usedLang = res.language || "";
+            toks = hljsToTokens(res.value);
+        } catch (e) { toks = []; }
+    }
+    if (!toks.length && norm) toks = [{ t: "plain", s: norm }];
+
+    // split tokens into lines
+    const lines = [[]];
+    for (const tk of toks) {
+        const parts = tk.s.split("\n");
+        for (let p = 0; p < parts.length; p++) {
+            if (p > 0) lines.push([]);
+            if (parts[p]) lines[lines.length - 1].push({ t: tk.t, s: parts[p] });
+        }
+    }
+
+    const colorOf = t => theme.c[t] || theme.c.plain;
+    const rtLines = [];
+
+    for (const line of lines) {
+        // merge adjacent same-color tokens
+        const groups = [];
+        for (const tk of line) {
+            const col = colorOf(tk.t);
+            const last = groups[groups.length - 1];
+            if (last && last.col === col) last.s += tk.s;
+            else groups.push({ col: col, s: tk.s, def: col === theme.c.plain });
+        }
+
+        let open = null, lrt = "";
+        for (const g of groups) {
+            const bare = g.def && !bgOn; // no background = let plain text keep its natural color
+            if (!bare && open !== g.col) {
+                if (open) lrt += "</font>";
+                lrt += "<font color='" + g.col + "'>";
+                open = g.col;
+            }
+            if (bare && open) { lrt += "</font>"; open = null; }
+            lrt += g.s;
+        }
+        if (open) lrt += "</font>";
+        rtLines.push(lrt);
+    }
+
+    let richtext = rtLines.join("<br />");
+    if (bgOn && richtext) richtext = "<mark color='" + bgHex + "'>" + richtext + "</mark>";
+
+    return {
+        richtext: richtext,
+        lineCount: norm.length ? lines.length : 0,
+        usedLang: usedLang
+    };
+}
+/*__CORE_END__*/
+
+// ===== DOM wiring =====
+const $ = id => document.getElementById(id);
+const output = $("output");
+const copyBtn = $("copyBtn");
+
+const DEFAULT_CODE = `-- syntax richtext thing demo
+local Players = game:GetService("Players")
+
+local function greet(name)
+    print("hello " .. name)
+end
+
+greet(Players.LocalPlayer and Players.LocalPlayer.Name or "roblox")`;
+
+// hljs detected language -> CodeMirror mode (so the editor matches detection)
+const HLJS_TO_MODE = {
+    lua: "text/x-lua",
+    javascript: "text/javascript",
+    typescript: "text/javascript",
+    json: "application/json",
+    python: "text/x-python"
+};
+
+const cm = CodeMirror($("editor"), {
+    value: DEFAULT_CODE,
+    mode: "text/x-lua",
+    lineNumbers: true,
+    indentUnit: 4,
+    tabSize: 4,
+    indentWithTabs: false
+});
+
+function update() {
+    const res = buildResult(cm.getValue(), "auto", THEME, false, "");
+
+    const mode = HLJS_TO_MODE[res.usedLang] || "text/plain";
+    if (cm.getOption("mode") !== mode) cm.setOption("mode", mode);
+
+    output.value = res.richtext;
+}
+
+cm.on("change", update);
+
+copyBtn.addEventListener("click", async () => {
+    const text = output.value;
+    let ok = false;
+    try {
+        await navigator.clipboard.writeText(text);
+        ok = true;
+    } catch (e) {
+        output.select();
+        try { ok = document.execCommand("copy"); } catch (e2) {}
+    }
+    const old = copyBtn.textContent;
+    copyBtn.textContent = ok ? "Copied!" : "Copy failed";
+    copyBtn.style.background = ok ? "#2eaa2e" : "#ff4444";
+    setTimeout(() => {
+        copyBtn.textContent = old;
+        copyBtn.style.background = "";
+    }, 1200);
+});
+
+update();
+</script>
+</body>
+</html>
